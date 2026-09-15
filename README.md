@@ -1,0 +1,3 @@
+# N12_DoAnCn
+
+-- Ý TƯỞNG ĐỀ TÀI: BẮT NGUỒN TỪ XU HƯỚNG TREND GẦN ĐÂY NỔI TIẾNG VỚI APP GỢI Ý MÓN ĂN NGẪU NHIÊN CHO NGƯỜI KHÔNG BIẾT HÔM NAY ĂN GÌ VÀ DỰA TRÊN SỐ TIỀN LỰA CHỌN VÀ TÂM TRẠNG VÀ GẦN ĐÂY ĐỂ GỢI Ý RANDOMLY RA ĐƯỢC DANH SÁCH QUÁN ĂN PHÙ HỢP VỚI CÁC TIÊU CHÍ ĐÃ CHỌN 
