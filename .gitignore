@@ -1,32 +1,26 @@
-# Flutter/Dart/Pub
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildpath
+.history
+.project
+.settings
+
+# IntelliJ IDEA
+*.iml
+.idea/
 .dart_tool/
 .packages
-build/
+
+# Flutter/Dart/Pub
+/build/
 .pub/
-.flutter-plugins
-.flutter-plugins-dependencies
 
-# IDEs and Editors
-.idea/
+# Editor directories and files
 .vscode/
-*.iml
-*.ipr
-*.iws
-.project
-.classpath
-.settings/
-
-# OS specific
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# API Keys, Environment Variables & Sensitive Configurations
-.env
-.env.*
-local.properties
-google-services.json
-GoogleService-Info.plist
-*api_keys.json
-*secrets.json
-config/keys.dart
+*.env
+*.g.dart

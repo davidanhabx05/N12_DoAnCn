@@ -1,6 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:n12_doan_cn/core/theme/app_theme.dart';
+import 'package:n12_doan_cn/viewmodels/app_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/home_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/search_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/feed_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/menu_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/profile_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/filter_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/settings_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/restaurant_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/chatbot_viewmodel.dart';
+import 'package:n12_doan_cn/features/main_scaffold.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (_) {}
+
+  try {
+    await Firebase.initializeApp();
+  } catch (_) {}
+
   runApp(const MyApp());
 }
 
@@ -9,39 +33,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'N12 DoAnCn',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'N12 DoAnCn Home'),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Welcome to N12 DoAnCn!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => SearchViewModel()),
+        ChangeNotifierProvider(create: (_) => FeedViewModel()),
+        ChangeNotifierProvider(create: (_) => MenuViewModel()),
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => FilterViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+        ChangeNotifierProvider(create: (_) => RestaurantViewModel()),
+        ChangeNotifierProvider(create: (_) => ChatbotViewModel()),
+      ],
+      child: MaterialApp(
+        title: 'N12 DoAnCn - Hôm Nay Ăn Gì',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const MainScaffold(),
       ),
     );
   }

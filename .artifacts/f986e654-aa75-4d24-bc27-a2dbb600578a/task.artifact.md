@@ -1,0 +1,11 @@
+- [x] Hoàn thiện tab Thực đơn (Meal Plan)
+    - [x] Cập nhật `MenuViewModel` với logic lọc trạng thái và dữ liệu mẫu
+    - [x] Cập nhật `MenuScreen` hiển thị theo từng trang con (Active, Draft, History)
+- [x] Hoàn thiện các tính năng còn thiếu trong Hồ sơ
+    - [x] Tạo trang `RandomDishScreen` (Ăn Theo Ý Trời)
+    - [x] Tạo trang `AllergySettingsScreen` (Dị ứng & Kiêng khem)
+    - [x] Tạo trang `HealthStatsScreen` (Chỉ số BMI & Sức khỏe)
+    - [x] Kết nối các trang mới vào `ProfileScreen`
+- [x] Bổ sung nội dung Bảng tin (Feed)
+    - [x] Tăng số lượng bài viết lên 20 bài đa dạng
+- [x] Kiểm tra và xác nhận toàn bộ tính năng hoạt động
