@@ -1,10 +1,15 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../viewmodels/profile_viewmodel.dart';
 import '../../viewmodels/app_viewmodel.dart';
+import '../../viewmodels/feed_viewmodel.dart';
 import '../../core/theme/app_theme.dart';
 import '../chatbot/chatbot_screen.dart';
 import '../restaurant/restaurant_screen.dart';
+import '../feed/create_post_screen.dart';
 import 'settings_screen.dart';
 import 'preference_settings_screen.dart';
 import 'random_dish_screen.dart';
@@ -100,25 +105,35 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Quick Prompt Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: AppTheme.primaryOrange.withOpacity(0.1), shape: BoxShape.circle),
-                    child: const Icon(Icons.restaurant_menu, color: AppTheme.primaryOrange),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text('Hôm nay bạn nấu món gì?', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-                  ),
-                  const Icon(Icons.camera_alt_outlined, color: AppTheme.primaryOrange),
-                ],
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen()));
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: AppTheme.primaryOrange.withOpacity(0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.restaurant_menu, color: AppTheme.primaryOrange),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text('Hôm nay bạn nấu món gì?', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt_outlined, color: AppTheme.primaryOrange),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen(openCamera: true)));
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -192,6 +207,15 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Section: ẢNH CỦA BẠN
+            if (viewModel.isLoggedIn) ...[
+              const Text('ẢNH CỦA BẠN', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+              const SizedBox(height: 8),
+              _buildPhotoGrid(context),
+            ],
+
             const SizedBox(height: 24),
 
             // Login / Logout Button
@@ -226,6 +250,42 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPhotoGrid(BuildContext context) {
+    final feedVm = context.watch<FeedViewModel>();
+    final userPosts = feedVm.posts.where((p) => p.authorName == 'Bạn (Foodie)').toList();
+
+    if (userPosts.isEmpty) {
+      return Container(
+        height: 150,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+        child: const Text('Bạn chưa có bài đăng nào.', style: TextStyle(color: Colors.grey)),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: userPosts.length,
+      itemBuilder: (context, index) {
+        final post = userPosts[index];
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: post.imageUrl.startsWith('http')
+              ? CachedNetworkImage(imageUrl: post.imageUrl, fit: BoxFit.cover)
+              : (kIsWeb 
+                  ? Image.network(post.imageUrl, fit: BoxFit.cover)
+                  : Image.file(File(post.imageUrl), fit: BoxFit.cover)),
+        );
+      },
     );
   }
 

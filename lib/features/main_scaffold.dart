@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/app_viewmodel.dart';
 import '../core/theme/app_theme.dart';
 import 'home/home_screen.dart';
+import 'feed/feed_screen.dart';
 import 'search/search_screen.dart';
 import 'restaurant/restaurant_screen.dart';
 import 'menu/menu_screen.dart';
@@ -13,6 +14,7 @@ class MainScaffold extends StatelessWidget {
 
   final List<Widget> _screens = const [
     HomeScreen(),
+    FeedScreen(),
     SearchScreen(),
     RestaurantScreen(),
     MenuScreen(),
@@ -43,13 +45,18 @@ class MainScaffold extends StatelessWidget {
           backgroundColor: Colors.white,
           selectedItemColor: AppTheme.primaryOrange,
           unselectedItemColor: Colors.grey,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
+          selectedFontSize: 10,
+          unselectedFontSize: 10,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
               label: 'Trang chủ',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dynamic_feed_outlined),
+              activeIcon: Icon(Icons.dynamic_feed),
+              label: 'Bảng tin',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.search),

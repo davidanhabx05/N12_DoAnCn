@@ -1,11 +1,8 @@
-- [x] Hoàn thiện tab Thực đơn (Meal Plan)
-    - [x] Cập nhật `MenuViewModel` với logic lọc trạng thái và dữ liệu mẫu
-    - [x] Cập nhật `MenuScreen` hiển thị theo từng trang con (Active, Draft, History)
-- [x] Hoàn thiện các tính năng còn thiếu trong Hồ sơ
-    - [x] Tạo trang `RandomDishScreen` (Ăn Theo Ý Trời)
-    - [x] Tạo trang `AllergySettingsScreen` (Dị ứng & Kiêng khem)
-    - [x] Tạo trang `HealthStatsScreen` (Chỉ số BMI & Sức khỏe)
-    - [x] Kết nối các trang mới vào `ProfileScreen`
-- [x] Bổ sung nội dung Bảng tin (Feed)
-    - [x] Tăng số lượng bài viết lên 20 bài đa dạng
+- [x] Hoàn thiện bộ lọc và thông báo cho Trang chủ
+    - [x] Tạo `NotificationViewModel` quản lý thông báo động
+    - [x] Đăng ký `NotificationViewModel` trong `main.dart`
+    - [x] Nâng cấp `HomeViewModel` với logic lọc đa tiêu chí (Thời gian, Vùng miền, Tâm trạng)
+    - [x] Cập nhật `HomeScreen` hiển thị món ăn sau khi lọc và badge thông báo
+    - [x] Hoàn thiện `NotificationScreen` với chức năng đọc/xóa
+    - [x] Kết nối `FilterScreen` để áp dụng bộ lọc vào `HomeViewModel`
 - [x] Kiểm tra và xác nhận toàn bộ tính năng hoạt động

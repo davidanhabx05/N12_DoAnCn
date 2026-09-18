@@ -1,28 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../models/dish.dart';
+import 'filter_viewmodel.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final List<Dish> _dishes = _generate500Dishes();
+  final List<Dish> _allDishes = _generate500Dishes();
+  late List<Dish> _filteredDishes;
+
+  HomeViewModel() {
+    _filteredDishes = List.from(_allDishes);
+  }
 
   static List<Dish> _generate500Dishes() {
-    // Bộ sưu tập mã ID Unsplash chất lượng cao cho ẩm thực Việt Nam / Châu Á
+    // Bộ sưu tập mã ID Pexels chất lượng cao cho ẩm thực Việt Nam / Châu Á
     final Map<String, List<String>> dishImages = {
-      'Phở': ['1582878826629-29b7ad1cdc43', '1513104890138-7c749659a591', '1606755962002-ad942337d050'],
-      'Bánh mì': ['1550547660-d9450f859349', '1558961363-fa8fdf82db35', '1601050691515-3dfcde5bbadb'],
-      'Gỏi': ['1546069901-ba9599a7e63c', '1512614738805-2b0a28a3a813', '1506084868270-3e230b05c361'],
-      'Cơm': ['1555939594-58d7cb561ad1', '1541014741242-d99c4354c4ad', '1604467731203-d6151779aa49'],
-      'Bún': ['1569718212165-3a8278d5f624', '1624300627563-04c1f3e74363', '1637536250583-b25b1ae95001'],
-      'Mì': ['1526318896980-cf78c088911f', '1585032226651-759b368d724a', '1612929633738-8fe44f7f8b0c'],
-      'Canh': ['1547592180-85f173990554', '1548946522-bb1f0590a27a'],
-      'Lẩu': ['1476733419910-74b170a39f14', '1551183053-bf91c1d81141', '1630132332617-646c10c149a4'],
-      'Healthy': ['1540420773420-3366772f4999', '1541544741938-0af808871cc0', '1490645935086-33b7e440855c'],
+      'Phở': ['2641886', '6260921', '2313642'],
+      'Bánh mì': ['4109128', '4109130', '461198'],
+      'Gỏi': ['1600711', '4061557', '4061560'],
+      'Cơm': ['1624487', '262959', '2116094'],
+      'Bún': ['2410602', '6260921', '1273765'],
+      'Mì': ['1273765', '1907244', '2098085'],
+      'Canh': ['1731535', '1640772', '2313642'],
+      'Lẩu': ['2313642', '6260921', '1624487'],
+      'Healthy': ['1059943', '1640777', '1143754'],
     };
 
     final List<String> fallbackIds = [
-      '1512058560374-3a7c0d3a56e2', '1511910849309-0d58f8308e22', '1552611052-c2b603f5d9a5',
-      '1509440159477-927bcfca4ec6', '1618449840183-c803402e1469', '1515516904322-1d57d207f212',
-      '1590409892150-13f89e47510d', '1604467731203-d6151779aa49', '1612131810029-7901e5450ad1',
-      '1473093226795-af9932fe5856'
+      '2641886', '1600711', '2410602', '1624487', '4109128', 
+      '1273765', '1731535', '1059943', '1640777', '1143754'
     ];
 
     String getImageUrl(String title, int index) {
@@ -37,7 +41,7 @@ class HomeViewModel extends ChangeNotifier {
       }
       
       final finalId = matchedId ?? fallbackIds[index % fallbackIds.length];
-      return 'https://images.unsplash.com/photo-$finalId?q=80&w=1000&auto=format&fit=crop';
+      return 'https://images.pexels.com/photos/$finalId/pexels-photo-$finalId.jpeg?auto=compress&cs=tinysrgb&w=1000';
     }
 
     final List<Dish> initialDishes = [
@@ -181,21 +185,86 @@ class HomeViewModel extends ChangeNotifier {
     return initialDishes;
   }
 
-  List<Dish> get dishes => _dishes;
+  List<Dish> get dishes => _filteredDishes;
+
+  bool _isFilterActive = false;
+  bool get isFilterActive => _isFilterActive;
+
+  void applyFilter(FilterViewModel filterVm, String dietType) {
+    _isFilterActive = filterVm.selectedTime != 'Bất kỳ' || 
+                      filterVm.selectedRegion != null || 
+                      filterVm.selectedWeather != null || 
+                      filterVm.selectedMood != null;
+
+    _filteredDishes = _allDishes.where((dish) {
+      // 1. Lọc theo chế độ ăn (dietType)
+      bool matchesDiet = true;
+      if (dietType != 'Bình thường') {
+        matchesDiet = dish.category == dietType;
+      }
+
+      // 2. Lọc theo thời gian nấu
+      bool matchesTime = true;
+      if (filterVm.selectedTime != 'Bất kỳ') {
+        if (filterVm.selectedTime == '≤ 15 phút') matchesTime = dish.prepTimeMinutes <= 15;
+        else if (filterVm.selectedTime == '15–30 phút') matchesTime = dish.prepTimeMinutes > 15 && dish.prepTimeMinutes <= 30;
+        else if (filterVm.selectedTime == '30–60 phút') matchesTime = dish.prepTimeMinutes > 30 && dish.prepTimeMinutes <= 60;
+        else if (filterVm.selectedTime == '> 60 phút') matchesTime = dish.prepTimeMinutes > 60;
+      }
+      // Slider time (Tối đa)
+      matchesTime = matchesTime && (dish.prepTimeMinutes <= filterVm.maxTimeSlider);
+
+      // 3. Lọc theo Vùng miền, Thời tiết, Tâm trạng (Tìm trong title hoặc description)
+      bool matchesRegion = true;
+      if (filterVm.selectedRegion != null) {
+        matchesRegion = dish.title.toLowerCase().contains(filterVm.selectedRegion!.toLowerCase()) ||
+                        dish.description.toLowerCase().contains(filterVm.selectedRegion!.toLowerCase());
+      }
+
+      bool matchesWeather = true;
+      if (filterVm.selectedWeather != null) {
+        matchesWeather = dish.title.toLowerCase().contains(filterVm.selectedWeather!.toLowerCase()) ||
+                         dish.description.toLowerCase().contains(filterVm.selectedWeather!.toLowerCase());
+      }
+
+      bool matchesMood = true;
+      if (filterVm.selectedMood != null) {
+        matchesMood = dish.title.toLowerCase().contains(filterVm.selectedMood!.toLowerCase()) ||
+                      dish.description.toLowerCase().contains(filterVm.selectedMood!.toLowerCase());
+      }
+
+      return matchesDiet && matchesTime && matchesRegion && matchesWeather && matchesMood;
+    }).toList();
+
+    _currentIndex = 0; // Reset index khi có bộ lọc mới
+    notifyListeners();
+  }
 
   List<Dish> getRecommendedDishes(String dietType) {
-    if (dietType == 'Bình thường') return _dishes;
-    return _dishes.where((d) => d.category == dietType || (dietType == 'Healthy' && d.category == 'Healthy')).toList();
+    // Nếu danh sách lọc bị trống, tự động quay về danh sách mặc định theo chế độ ăn
+    if (_filteredDishes.isEmpty) {
+      if (dietType == 'Bình thường') return _allDishes;
+      return _allDishes.where((d) => d.category == dietType || (dietType == 'Healthy' && d.category == 'Healthy')).toList();
+    }
+    return _filteredDishes;
   }
 
   int _currentIndex = 0;
   int get currentDishIndex => _currentIndex;
 
-  Dish get currentDish => _dishes[_currentIndex % _dishes.length];
+  Dish get currentDish {
+    if (_filteredDishes.isEmpty) {
+      // Fallback nếu lọc không ra món nào
+      return _allDishes[0];
+    }
+    return _filteredDishes[_currentIndex % _filteredDishes.length];
+  }
 
   void nextDish() {
-    _currentIndex++;
-    notifyListeners();
+    if (_filteredDishes.isNotEmpty) {
+      _currentIndex++;
+      notifyListeners();
+    }
   }
 
   void previousDish() {
@@ -206,12 +275,20 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void toggleLikeCurrent() {
+    if (_filteredDishes.isEmpty) return;
     final dish = currentDish;
     final updated = dish.copyWith(
       isLiked: !dish.isLiked,
       likesCount: dish.isLiked ? dish.likesCount - 1 : dish.likesCount + 1,
     );
-    _dishes[_currentIndex % _dishes.length] = updated;
+    
+    // Cập nhật trong cả 2 danh sách
+    final idxInAll = _allDishes.indexWhere((d) => d.id == dish.id);
+    if (idxInAll != -1) _allDishes[idxInAll] = updated;
+    
+    final idxInFiltered = _filteredDishes.indexWhere((d) => d.id == dish.id);
+    if (idxInFiltered != -1) _filteredDishes[idxInFiltered] = updated;
+    
     notifyListeners();
   }
 }

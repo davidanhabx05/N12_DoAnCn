@@ -10,48 +10,55 @@ class RestaurantViewModel extends ChangeNotifier {
 
   final List<String> categories = ['Tất cả', 'Món Chay', 'Healthy', 'Nhà hàng', 'Ăn vặt', 'Quán Nhậu'];
 
-  final List<Restaurant> _allRestaurants = [
-    Restaurant(
-      id: '1',
-      name: 'Nhà hàng Chay An Phúc',
-      address: '123 Nguyễn Văn Cừ, Quận 5, TP.HCM',
-      rating: 4.8,
-      imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1000&auto=format&fit=crop',
-      category: 'Món Chay',
-      distance: '0.8 km',
-      isOpen: true,
-    ),
-    Restaurant(
-      id: '2',
-      name: 'Quán Ăn Healthy Green',
-      address: '45 Lê Văn Sỹ, Quận Phú Nhuận, TP.HCM',
-      rating: 4.7,
-      imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop',
-      category: 'Healthy',
-      distance: '1.5 km',
-      isOpen: true,
-    ),
-    Restaurant(
-      id: '3',
-      name: 'Bếp Nhà Mình Restaurant',
-      address: '88 Pasteur, Quận 1, TP.HCM',
-      rating: 4.9,
-      imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1000&auto=format&fit=crop',
-      category: 'Nhà hàng',
-      distance: '2.1 km',
-      isOpen: false,
-    ),
-    Restaurant(
-      id: '4',
-      name: 'Ăn Vặt Cô Ba Sài Gòn',
-      address: '12 Điện Biên Phủ, Quận Bình Thạnh, TP.HCM',
-      rating: 4.6,
-      imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1000&auto=format&fit=crop',
-      category: 'Ăn vặt',
-      distance: '1.1 km',
-      isOpen: true,
-    ),
-  ];
+  late List<Restaurant> _allRestaurants;
+
+  RestaurantViewModel() {
+    _allRestaurants = _generate100Restaurants();
+  }
+
+  static List<Restaurant> _generate100Restaurants() {
+    final List<Restaurant> list = [];
+    
+    final Map<String, List<String>> names = {
+      'Món Chay': ['Cơm Chay Diệu Tâm', 'Buffet Chay Hương Từ', 'Nhà hàng Chay An Phúc', 'Chay Thiện Duyên', 'Quán Chay Sen Vàng', 'Lẩu Nấm Chay', 'Bún Bò Chay Cô Ba', 'Chay Tùy Duyên', 'Thực Phẩm Sạch Chay', 'Nhà hàng Chay Veggie'],
+      'Healthy': ['Green Life Salad', 'Healthy Bites', 'Eat Clean Kitchen', 'Fresh Garden', 'Poke Saigon', 'Smoothie Factory', 'Organic House', 'Nước Ép Trị Liệu', 'Vegan Bowl', 'The Green Box'],
+      'Nhà hàng': ['Bếp Nhà Mình', 'Cơm Niêu Việt', 'Nhà hàng Ngon', 'Quán Ăn Gia Đình', 'Ẩm Thực Quê Hương', 'Nhà hàng Sen', 'Bún Chả Sinh Từ', 'Phở Thìn Lò Đúc', 'Cơm Tấm Cali', 'Lẩu Cua Khôi'],
+      'Ăn vặt': ['Ốc Đào', 'Bánh Tráng Trộn Cô Long', 'Chè Thái Ý Phương', 'Trà Sữa Nhà Làm', 'Nem Nướng Nha Trang', 'Bánh Xèo Kỷ Ty', 'Ăn Vặt Sài Gòn', 'Sữa Chua Trân Châu', 'Bánh Mì Huỳnh Hoa', 'Xôi Yến'],
+      'Quán Nhậu': ['Bia Hơi Hà Nội', 'Lẩu Dê Đồng Quê', 'Bò Tơ Tây Ninh', 'Vuvuzela Beer Club', 'Quán Nhậu Bình Dân', 'Lẩu Gà Lá É', 'Nướng Ngói', 'Hải Sản Tươi Sống', 'Đồ Nướng Sapa', 'Bia Club 99'],
+    };
+
+    final Map<String, String> pexelsIds = {
+      'Món Chay': '1143754',
+      'Healthy': '1640777',
+      'Nhà hàng': '262959',
+      'Ăn vặt': '4109128',
+      'Quán Nhậu': '2313642',
+    };
+
+    final List<String> cities = ['Quận 1, TP.HCM', 'Quận 3, TP.HCM', 'Quận Hoàn Kiếm, Hà Nội', 'Quận Cầu Giấy, Hà Nội', 'Quận Hải Châu, Đà Nẵng', 'Quận Ninh Kiều, Cần Thơ'];
+
+    int idCount = 1;
+    names.forEach((cat, nameList) {
+      for (int i = 0; i < 30; i++) {
+        final nameBase = nameList[i % nameList.length];
+        final suffix = i >= nameList.length ? ' (CS ${i ~/ nameList.length + 1})' : '';
+        
+        list.add(Restaurant(
+          id: 'res_$idCount',
+          name: '$nameBase$suffix',
+          address: '${10 + i} ${['Lê Lợi', 'Nguyễn Huệ', 'Trần Hưng Đạo', 'Lý Thường Kiệt', 'Bạch Đằng', 'Hoàng Hoa Thám', 'Kim Mã'][i % 7]}, ${cities[i % cities.length]}',
+          rating: 4.0 + (i % 10) / 10.0,
+          imageUrl: 'https://images.pexels.com/photos/${pexelsIds[cat]}/pexels-photo-${pexelsIds[cat]}.jpeg?auto=compress&cs=tinysrgb&w=800',
+          category: cat,
+          distance: '${(0.5 + (i * 0.2)).toStringAsFixed(1)} km',
+          isOpen: i % 6 != 0,
+        ));
+        idCount++;
+      }
+    });
+
+    return list;
+  }
 
   String get searchQuery => _searchQuery;
   String get selectedCategory => _selectedCategory;

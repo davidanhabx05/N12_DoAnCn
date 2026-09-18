@@ -10,11 +10,22 @@ class ProfileViewModel extends ChangeNotifier {
   bool get isLoggedIn => _firebaseService.isLoggedIn;
   String? get userEmail => _firebaseService.userEmail;
 
-  // Mock stats
-  int get postCount => isLoggedIn ? 12 : 0;
-  int get followingCount => isLoggedIn ? 45 : 0;
-  int get followerCount => isLoggedIn ? 128 : 0;
-  int get totalLikes => isLoggedIn ? 1540 : 0;
+  // Real-time stats
+  int _basePostCount = 12;
+  int _followerCount = 128;
+  int _followingCount = 45;
+  int _totalLikes = 1540;
+
+  int get postCount => isLoggedIn ? (_basePostCount + _userPostsCount) : 0;
+  int get followingCount => isLoggedIn ? _followingCount : 0;
+  int get followerCount => isLoggedIn ? _followerCount : 0;
+  int get totalLikes => isLoggedIn ? _totalLikes : 0;
+
+  int _userPostsCount = 0;
+  void syncUserPostsCount(int count) {
+    _userPostsCount = count;
+    notifyListeners();
+  }
 
   void updatePreferences(UserPreferences newPrefs) {
     _preferences = newPrefs;

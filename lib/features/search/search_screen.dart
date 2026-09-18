@@ -15,7 +15,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(viewportFraction: 0.9);
   int _currentPage = 0;
 
   @override
@@ -145,6 +145,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           PageView.builder(
                             controller: _pageController,
+                            physics: const BouncingScrollPhysics(),
                             onPageChanged: (index) {
                               setState(() {
                                 _currentPage = index;
@@ -207,7 +208,7 @@ class _SearchScreenState extends State<SearchScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(dish: dish)));
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Stack(

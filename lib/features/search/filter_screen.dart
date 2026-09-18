@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/filter_viewmodel.dart';
+import '../../viewmodels/home_viewmodel.dart';
+import '../../viewmodels/profile_viewmodel.dart';
 import '../../core/theme/app_theme.dart';
 
 class FilterScreen extends StatelessWidget {
@@ -9,6 +11,8 @@ class FilterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<FilterViewModel>();
+    final homeVm = context.read<HomeViewModel>();
+    final profileVm = context.read<ProfileViewModel>();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -81,7 +85,11 @@ class FilterScreen extends StatelessWidget {
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Đã lưu bộ lọc thành công!')),
+                        );
+                      },
                       child: const Text('Lưu', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -111,9 +119,9 @@ class FilterScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('TỐI THIỂU · 0 PHÚT', style: TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
-                Text('TỐI ĐA · 180 PHÚT', style: TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
+              children: [
+                const Text('TỐI THIỂU · 0 PHÚT', style: TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
+                Text('TỐI ĐA · ${vm.maxTimeSlider.toInt()} PHÚT', style: const TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
               ],
             ),
             Slider(
@@ -199,7 +207,10 @@ class FilterScreen extends StatelessWidget {
                   side: BorderSide.none,
                   backgroundColor: AppTheme.backgroundLight,
                 ),
-                onPressed: () => vm.clearAll(),
+                onPressed: () {
+                  vm.clearAll();
+                  homeVm.applyFilter(vm, profileVm.preferences.dietType);
+                },
                 child: const Text('Xóa tất cả', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
               ),
             ),
@@ -213,7 +224,10 @@ class FilterScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  homeVm.applyFilter(vm, profileVm.preferences.dietType);
+                  Navigator.pop(context);
+                },
                 child: const Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
               ),
             ),

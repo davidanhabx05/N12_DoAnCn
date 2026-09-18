@@ -53,6 +53,23 @@ class FilterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Map<String, String>> get activeFilters {
+    final List<Map<String, String>> filters = [];
+    if (selectedTime != 'Bất kỳ') filters.add({'type': 'time', 'label': selectedTime});
+    if (selectedRegion != null) filters.add({'type': 'region', 'label': selectedRegion!});
+    if (selectedWeather != null) filters.add({'type': 'weather', 'label': selectedWeather!});
+    if (selectedMood != null) filters.add({'type': 'mood', 'label': selectedMood!});
+    return filters;
+  }
+
+  void removeFilter(String type) {
+    if (type == 'time') selectedTime = 'Bất kỳ';
+    else if (type == 'region') selectedRegion = null;
+    else if (type == 'weather') selectedWeather = null;
+    else if (type == 'mood') selectedMood = null;
+    notifyListeners();
+  }
+
   void clearAll() {
     savedFilterName = '';
     selectedTime = 'Bất kỳ';

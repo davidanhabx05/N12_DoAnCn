@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -13,7 +14,17 @@ import 'package:n12_doan_cn/viewmodels/filter_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/settings_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/restaurant_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/chatbot_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/notification_viewmodel.dart';
 import 'package:n12_doan_cn/features/main_scaffold.dart';
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+      };
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,11 +56,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => RestaurantViewModel()),
         ChangeNotifierProvider(create: (_) => ChatbotViewModel()),
+        ChangeNotifierProvider(create: (_) => NotificationViewModel()),
       ],
       child: MaterialApp(
         title: 'N12 DoAnCn - Hôm Nay Ăn Gì',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
+        scrollBehavior: AppScrollBehavior(),
         home: const MainScaffold(),
       ),
     );
