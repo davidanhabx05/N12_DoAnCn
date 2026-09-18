@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/app_viewmodel.dart';
+import '../viewmodels/language_viewmodel.dart';
 import '../core/theme/app_theme.dart';
 import 'home/home_screen.dart';
 import 'feed/feed_screen.dart';
@@ -12,7 +13,7 @@ import 'profile/profile_screen.dart';
 class MainScaffold extends StatelessWidget {
   const MainScaffold({super.key});
 
-  final List<Widget> _screens = const [
+  static const List<Widget> _screens = [
     HomeScreen(),
     FeedScreen(),
     SearchScreen(),
@@ -24,6 +25,7 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appViewModel = context.watch<AppViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
 
     return Scaffold(
       body: _screens[appViewModel.currentIndex],
@@ -47,36 +49,36 @@ class MainScaffold extends StatelessWidget {
           unselectedItemColor: Colors.grey,
           selectedFontSize: 10,
           unselectedFontSize: 10,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Trang chủ',
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home),
+              label: langVm.t('home'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.dynamic_feed_outlined),
-              activeIcon: Icon(Icons.dynamic_feed),
-              label: 'Bảng tin',
+              icon: const Icon(Icons.dynamic_feed_outlined),
+              activeIcon: const Icon(Icons.dynamic_feed),
+              label: langVm.t('feed'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              activeIcon: Icon(Icons.search),
-              label: 'Tìm kiếm',
+              icon: const Icon(Icons.search),
+              activeIcon: const Icon(Icons.search),
+              label: langVm.t('search'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.map_outlined),
-              activeIcon: Icon(Icons.map),
-              label: 'Gợi ý quán',
+              icon: const Icon(Icons.map_outlined),
+              activeIcon: const Icon(Icons.map),
+              label: langVm.t('restaurants'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined),
-              activeIcon: Icon(Icons.calendar_month),
-              label: 'Thực đơn',
+              icon: const Icon(Icons.calendar_month_outlined),
+              activeIcon: const Icon(Icons.calendar_month),
+              label: langVm.t('menu'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Hồ sơ',
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
+              label: langVm.t('profile'),
             ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_theme.dart';
 import '../../viewmodels/notification_viewmodel.dart';
+import '../../viewmodels/language_viewmodel.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -13,12 +14,11 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _tabs = ['Tất cả', 'Cá nhân', 'Khuyến mãi', 'Tin mới'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -30,6 +30,14 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<NotificationViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
+    
+    final List<Map<String, String>> tabs = [
+      {'key': 'Tất cả', 'label': langVm.t('all')},
+      {'key': 'Cá nhân', 'label': langVm.t('personal')},
+      {'key': 'Khuyến mãi', 'label': langVm.t('promo')},
+      {'key': 'Tin mới', 'label': langVm.t('updates')},
+    ];
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -38,13 +46,13 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
           icon: const Icon(Icons.close, color: AppTheme.textDark),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Thông báo', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+        title: Text(langVm.t('notifications'), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.done_all, color: AppTheme.primaryOrange),
             onPressed: () => vm.markAllAsRead(),
-            tooltip: 'Đọc tất cả',
+            tooltip: langVm.t('read_all'),
           ),
         ],
         bottom: TabBar(
@@ -53,14 +61,14 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
           labelColor: AppTheme.primaryOrange,
           unselectedLabelColor: AppTheme.textGrey,
           indicatorColor: AppTheme.primaryOrange,
-          tabs: _tabs.map((t) => Tab(text: t)).toList(),
+          tabs: tabs.map((t) => Tab(text: t['label'])).toList(),
           onTap: (_) => setState(() {}),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: _tabs.map((tabName) {
-          final notifications = vm.getNotifications(tabName);
+        children: tabs.map((tab) {
+          final notifications = vm.getNotifications(tab['key']!);
           if (notifications.isEmpty) {
             return Center(
               child: Column(
@@ -68,7 +76,7 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
                 children: [
                   Icon(Icons.notifications_off_outlined, size: 60, color: Colors.grey[300]),
                   const SizedBox(height: 16),
-                  const Text('Không có thông báo nào', style: TextStyle(color: Colors.grey)),
+                  Text(langVm.t('no_notifications'), style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             );

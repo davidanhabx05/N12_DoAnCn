@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:n12_doan_cn/viewmodels/search_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/language_viewmodel.dart';
 import 'package:n12_doan_cn/core/theme/app_theme.dart';
 import 'package:n12_doan_cn/features/recipe/recipe_detail_screen.dart';
 import 'package:n12_doan_cn/features/search/filter_screen.dart';
@@ -28,6 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SearchViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
 
     return Scaffold(
       body: SafeArea(
@@ -37,13 +39,13 @@ class _SearchScreenState extends State<SearchScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              const Text(
-                'Tìm Món Ăn',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+              Text(
+                langVm.t('search'),
+                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textDark),
               ),
-              const Text(
-                'Hôm nay bạn muốn nấu gì?',
-                style: TextStyle(fontSize: 14, color: AppTheme.textGrey),
+              Text(
+                langVm.currentLocale.languageCode == 'vi' ? 'Hôm nay bạn muốn nấu gì?' : 'What do you want to cook today?',
+                style: const TextStyle(fontSize: 14, color: AppTheme.textGrey),
               ),
               const SizedBox(height: 16),
 
@@ -65,7 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         controller: _searchController,
                         onChanged: (val) => viewModel.setSearchQuery(val),
                         decoration: InputDecoration(
-                          hintText: 'Tìm tên món ăn...',
+                          hintText: langVm.t('search_hint'),
                           border: InputBorder.none,
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
@@ -99,10 +101,22 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemBuilder: (context, index) {
                     final cat = viewModel.categories[index];
                     final isSelected = viewModel.selectedCategory == cat;
+                    
+                    String label = cat;
+                    if (langVm.currentLocale.languageCode == 'en') {
+                      final map = {
+                        'Tất cả': 'All', 'Cơm': 'Rice', 'Phở': 'Pho', 'Bún': 'Noodles',
+                        'Mì': 'Pasta', 'Bánh mì': 'Bread', 'Lẩu': 'Hotpot',
+                        'Bữa sáng': 'Breakfast', 'Bữa trưa': 'Lunch', 'Bữa tối': 'Dinner',
+                        'Ăn nhẹ': 'Snack', 'Healthy': 'Healthy'
+                      };
+                      label = map[cat] ?? cat;
+                    }
+
                     return Container(
                       margin: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text(cat),
+                        label: Text(label),
                         selected: isSelected,
                         selectedColor: AppTheme.primaryOrange,
                         backgroundColor: Colors.white,
@@ -124,16 +138,13 @@ class _SearchScreenState extends State<SearchScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Gợi ý hôm nay', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                        Text(langVm.t('today_suggestion'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
                         TextButton(
                           onPressed: () {
                             viewModel.setSearchQuery('');
                             _searchController.clear();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Đang hiển thị tất cả món ăn')),
-                            );
                           },
-                          child: const Text('Xem tất cả', style: TextStyle(color: AppTheme.primaryOrange, fontWeight: FontWeight.bold)),
+                          child: Text(langVm.t('view_all'), style: const TextStyle(color: AppTheme.primaryOrange, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -154,7 +165,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             itemCount: viewModel.featuredDishes.length,
                             itemBuilder: (context, index) {
                               final dish = viewModel.featuredDishes[index];
-                              return _buildFeaturedCard(context, dish);
+                              return _buildFeaturedCard(context, dish, langVm);
                             },
                           ),
                           Positioned(
@@ -184,14 +195,14 @@ class _SearchScreenState extends State<SearchScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          viewModel.searchQuery.isEmpty ? 'Món ăn phổ biến' : 'Kết quả · ${viewModel.filteredDishes.length} món',
+                          viewModel.searchQuery.isEmpty ? langVm.t('popular_dishes') : '${langVm.currentLocale.languageCode == 'vi' ? 'Kết quả' : 'Result'} · ${viewModel.filteredDishes.length}',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
 
-                    ...viewModel.filteredDishes.map((dish) => _buildResultItem(context, dish)),
+                    ...viewModel.filteredDishes.map((dish) => _buildResultItem(context, dish, langVm)).toList(),
                   ],
                 ),
               ),
@@ -202,7 +213,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildFeaturedCard(BuildContext context, dynamic dish) {
+  Widget _buildFeaturedCard(BuildContext context, dynamic dish, LanguageViewModel langVm) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(dish: dish)));
@@ -241,11 +252,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     color: AppTheme.primaryOrange,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.star, color: Colors.white, size: 14),
-                      SizedBox(width: 4),
-                      Text('Món của tuần', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.star, color: Colors.white, size: 14),
+                      const SizedBox(width: 4),
+                      Text(langVm.currentLocale.languageCode == 'vi' ? 'Món của tuần' : 'Dish of the Week', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -260,9 +271,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     Row(
                       children: [
                         const Icon(Icons.access_time, color: Colors.white, size: 14),
-                        Text(' ${dish.prepTimeMinutes} phút   ', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                        Text(' ${dish.prepTimeMinutes} ${langVm.t('minutes')}   ', style: const TextStyle(color: Colors.white, fontSize: 12)),
                         const Icon(Icons.local_fire_department, color: Colors.orange, size: 14),
-                        Text(' ${dish.calories} Calo', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                        Text(' ${dish.calories} ${langVm.t('calories')}', style: const TextStyle(color: Colors.white, fontSize: 12)),
                       ],
                     ),
                   ],
@@ -275,7 +286,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildResultItem(BuildContext context, dynamic dish) {
+  Widget _buildResultItem(BuildContext context, dynamic dish, LanguageViewModel langVm) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(dish: dish)));
@@ -320,9 +331,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   Row(
                     children: [
                       const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                      Text(' ${dish.prepTimeMinutes} phút  ', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(' ${dish.prepTimeMinutes} ${langVm.t('minutes')}  ', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                       const Icon(Icons.local_fire_department, size: 14, color: Colors.orange),
-                      Text(' ${dish.calories} Calo', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(' ${dish.calories} ${langVm.t('calories')}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ],

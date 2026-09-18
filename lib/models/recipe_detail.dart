@@ -1,3 +1,5 @@
+import 'dish.dart';
+
 class IngredientItem {
   final String name;
   final String amount;
@@ -11,6 +13,7 @@ class IngredientItem {
 }
 
 class RecipeDetail {
+  final Dish dish; // Thêm trường này
   final String id;
   final String title;
   final String description;
@@ -26,6 +29,7 @@ class RecipeDetail {
   final String extraInfo;
 
   RecipeDetail({
+    required this.dish,
     required this.id,
     required this.title,
     required this.description,

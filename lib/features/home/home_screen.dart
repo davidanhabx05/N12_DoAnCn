@@ -10,6 +10,7 @@ import 'package:n12_doan_cn/features/search/filter_screen.dart';
 import 'package:n12_doan_cn/features/home/notification_screen.dart';
 import 'package:n12_doan_cn/viewmodels/notification_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/filter_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/language_viewmodel.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,7 @@ class HomeScreen extends StatelessWidget {
     final viewModel = context.watch<HomeViewModel>();
     final profileVm = context.watch<ProfileViewModel>();
     final notificationVm = context.watch<NotificationViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
     final dietType = profileVm.preferences.dietType;
     
     final recommendedDishes = viewModel.getRecommendedDishes(dietType);
@@ -64,11 +66,11 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen()));
                       },
                     ),
-                    const Column(
+                    Column(
                       children: [
                         Text(
-                          'HÔM NAY ĂN GÌ?',
-                          style: TextStyle(
+                          langVm.t('what_to_eat'),
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.2,
@@ -76,8 +78,8 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Vuốt để xem tiếp!',
-                          style: TextStyle(fontSize: 12, color: AppTheme.textGrey),
+                          langVm.t('swipe_more'),
+                          style: const TextStyle(fontSize: 12, color: AppTheme.textGrey),
                         ),
                       ],
                     ),
@@ -259,8 +261,8 @@ class HomeScreen extends StatelessWidget {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                                       children: [
-                                        _buildStatItem(Icons.local_fire_department, '${dish.calories} Calo', Colors.orange),
-                                        _buildStatItem(Icons.access_time, '${dish.prepTimeMinutes} phút', Colors.blue),
+                                        _buildStatItem(Icons.local_fire_department, '${dish.calories} ${langVm.t('calories')}', Colors.orange),
+                                        _buildStatItem(Icons.access_time, '${dish.prepTimeMinutes} ${langVm.t('minutes')}', Colors.blue),
                                         _buildStatItem(Icons.restaurant_menu, dish.difficulty, Colors.green),
                                       ],
                                     ),
@@ -277,15 +279,15 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.search_off, size: 80, color: Colors.grey),
                       const SizedBox(height: 16),
-                      const Text('Không tìm thấy món ăn nào!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const Text('Hãy thử điều chỉnh bộ lọc nhé.', style: TextStyle(color: Colors.grey)),
+                      Text(langVm.currentLocale.languageCode == 'vi' ? 'Không tìm thấy món ăn nào!' : 'No dishes found!', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(langVm.currentLocale.languageCode == 'vi' ? 'Hãy thử điều chỉnh bộ lọc nhé.' : 'Please try adjusting your filters.', style: const TextStyle(color: Colors.grey)),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen()));
                         },
                         style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryOrange),
-                        child: const Text('Mở Bộ lọc', style: TextStyle(color: Colors.white)),
+                        child: Text(langVm.t('apply'), style: const TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -323,7 +325,7 @@ class HomeScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const ChatbotScreen()),
+                          MaterialPageRoute(builder: (_) => ChatbotScreen()),
                         );
                       },
                       child: const Icon(Icons.auto_awesome, color: AppTheme.primaryOrange),

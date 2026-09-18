@@ -45,16 +45,35 @@ class MenuViewModel extends ChangeNotifier {
 
   List<MenuPlan> get allMenuPlans => _allMenuPlans;
 
-  void addMenuPlan(String title, String description) {
-    // Mặc định thêm vào mục Nháp khi nhấn từ bất kỳ đâu (hoặc có thể tùy biến)
+  void addMenuPlan(String title, String status) {
     final newPlan = MenuPlan(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       date: DateTime.now(),
-      status: 'draft',
-      dishIds: [],
+      status: status,
+      dishIds: ['1', '5'],
     );
     _allMenuPlans.insert(0, newPlan);
+    notifyListeners();
+  }
+
+  void updatePlanStatus(String planId, String newStatus) {
+    final index = _allMenuPlans.indexWhere((p) => p.id == planId);
+    if (index != -1) {
+      final plan = _allMenuPlans[index];
+      _allMenuPlans[index] = MenuPlan(
+        id: plan.id,
+        title: plan.title,
+        date: plan.date,
+        status: newStatus,
+        dishIds: plan.dishIds,
+      );
+      notifyListeners();
+    }
+  }
+
+  void deletePlan(String planId) {
+    _allMenuPlans.removeWhere((p) => p.id == planId);
     notifyListeners();
   }
 }

@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:n12_doan_cn/viewmodels/restaurant_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/profile_viewmodel.dart';
+import 'package:n12_doan_cn/viewmodels/language_viewmodel.dart';
 import 'package:n12_doan_cn/core/theme/app_theme.dart';
 
 class RestaurantScreen extends StatelessWidget {
@@ -23,6 +24,7 @@ class RestaurantScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<RestaurantViewModel>();
     final profileVm = context.watch<ProfileViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
     final dietType = profileVm.preferences.dietType;
 
     final displayRestaurants = vm.getFilteredByPreference(dietType);
@@ -30,7 +32,7 @@ class RestaurantScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        title: const Text('Gợi Ý Quán Ăn (Dành cho bạn)', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+        title: Text('${langVm.t('restaurant_suggest')} (${langVm.currentLocale.languageCode == 'vi' ? 'Dành cho bạn' : 'For you'})', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -56,8 +58,8 @@ class RestaurantScreen extends StatelessWidget {
                           vm.setSearchQuery(val);
                           vm.fetchNearbyFromPlaces();
                         },
-                        decoration: const InputDecoration(
-                          hintText: 'Tìm quán ăn gần bạn...',
+                        decoration: InputDecoration(
+                          hintText: langVm.currentLocale.languageCode == 'vi' ? 'Tìm quán ăn gần bạn...' : 'Find restaurants nearby...',
                           border: InputBorder.none,
                         ),
                       ),
@@ -81,10 +83,17 @@ class RestaurantScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final cat = vm.categories[index];
                     final isSelected = vm.selectedCategory == cat;
+                    
+                    String label = cat;
+                    if (langVm.currentLocale.languageCode == 'en') {
+                      final map = {'Tất cả': 'All', 'Món Chay': 'Vegetarian', 'Healthy': 'Healthy', 'Nhà hàng': 'Restaurant', 'Ăn vặt': 'Snack', 'Quán Nhậu': 'Bar/Pub'};
+                      label = map[cat] ?? cat;
+                    }
+
                     return Container(
                       margin: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text(cat),
+                        label: Text(label),
                         selected: isSelected,
                         selectedColor: AppTheme.primaryOrange,
                         backgroundColor: Colors.white,
@@ -101,7 +110,7 @@ class RestaurantScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               Text(
-                'Quán ăn phù hợp · ${displayRestaurants.length} kết quả',
+                '${langVm.currentLocale.languageCode == 'vi' ? 'Quán ăn phù hợp' : 'Suitable restaurants'} · ${displayRestaurants.length} ${langVm.currentLocale.languageCode == 'vi' ? 'kết quả' : 'results'}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark),
               ),
               const SizedBox(height: 12),
@@ -184,7 +193,9 @@ class RestaurantScreen extends StatelessWidget {
                                             borderRadius: BorderRadius.circular(6),
                                           ),
                                           child: Text(
-                                            r.isOpen ? 'Đang mở cửa' : 'Đã đóng cửa',
+                                            r.isOpen 
+                                                ? (langVm.currentLocale.languageCode == 'vi' ? 'Đang mở cửa' : 'Open now') 
+                                                : (langVm.currentLocale.languageCode == 'vi' ? 'Đã đóng cửa' : 'Closed'),
                                             style: TextStyle(color: r.isOpen ? Colors.green : Colors.red, fontSize: 11, fontWeight: FontWeight.bold),
                                           ),
                                         ),
@@ -199,7 +210,7 @@ class RestaurantScreen extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                       ),
                                       icon: const Icon(Icons.map, size: 16),
-                                      label: const Text('Mở Google Maps', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      label: Text(langVm.currentLocale.languageCode == 'vi' ? 'Mở Google Maps' : 'Open Maps', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                       onPressed: () => _openGoogleMaps(r.address),
                                     ),
                                   ],

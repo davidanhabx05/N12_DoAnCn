@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:n12_doan_cn/viewmodels/language_viewmodel.dart';
 import 'package:n12_doan_cn/features/home/notification_screen.dart';
 import 'package:n12_doan_cn/viewmodels/notification_viewmodel.dart';
 import '../../viewmodels/feed_viewmodel.dart';
@@ -16,6 +17,7 @@ class FeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<FeedViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -34,9 +36,9 @@ class FeedScreen extends StatelessWidget {
                       viewModel.setFilter(value);
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'Xu hướng', child: Text('🔥 Xu hướng')),
-                      const PopupMenuItem(value: 'Mới nhất', child: Text('🕒 Mới nhất')),
-                      const PopupMenuItem(value: 'Gần bạn', child: Text('📍 Gần bạn')),
+                      PopupMenuItem(value: 'Xu hướng', child: Text('🔥 ${langVm.t('trending')}')),
+                      PopupMenuItem(value: 'Mới nhất', child: Text('🕒 ${langVm.t('newest')}')),
+                      PopupMenuItem(value: 'Gần bạn', child: Text('📍 ${langVm.t('near_you')}')),
                     ],
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -47,7 +49,14 @@ class FeedScreen extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Text(viewModel.currentFilter, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                          Text(
+                            viewModel.currentFilter == 'Xu hướng' 
+                                ? langVm.t('trending')
+                                : (viewModel.currentFilter == 'Mới nhất' 
+                                    ? langVm.t('newest') 
+                                    : langVm.t('near_you')), 
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)
+                          ),
                           const Icon(Icons.keyboard_arrow_down, color: AppTheme.textDark),
                         ],
                       ),
@@ -105,7 +114,7 @@ class FeedScreen extends StatelessWidget {
                 itemCount: viewModel.posts.length,
                 itemBuilder: (context, index) {
                   final post = viewModel.posts[index];
-                  return _buildPostCard(context, post, viewModel);
+                  return _buildPostCard(context, post, viewModel, langVm);
                 },
               ),
             ),
@@ -115,7 +124,7 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPostCard(BuildContext context, Post post, FeedViewModel viewModel) {
+  Widget _buildPostCard(BuildContext context, Post post, FeedViewModel viewModel, LanguageViewModel langVm) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
@@ -126,7 +135,6 @@ class FeedScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Author Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -162,7 +170,6 @@ class FeedScreen extends StatelessWidget {
             ),
           ),
 
-          // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(0),
             child: post.imageUrl.startsWith('http')
@@ -187,7 +194,6 @@ class FeedScreen extends StatelessWidget {
                       )),
           ),
 
-          // Actions
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
@@ -201,7 +207,7 @@ class FeedScreen extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.chat_bubble_outline),
-                  onPressed: () => _showComments(context, post, viewModel),
+                  onPressed: () => _showComments(context, post, viewModel, langVm),
                 ),
                 IconButton(
                   icon: const Icon(Icons.send_outlined),
@@ -223,13 +229,12 @@ class FeedScreen extends StatelessWidget {
             ),
           ),
 
-          // Caption & Likes
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${post.likesCount} lượt thích', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('${post.likesCount} ${langVm.t('likes')}', style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 RichText(
                   text: TextSpan(
@@ -245,9 +250,9 @@ class FeedScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: GestureDetector(
-                      onTap: () => _showComments(context, post, viewModel),
+                      onTap: () => _showComments(context, post, viewModel, langVm),
                       child: Text(
-                        'Xem tất cả ${post.comments.length} bình luận',
+                        '${langVm.t('view_all')} ${post.comments.length} ${langVm.t('comments').toLowerCase()}',
                         style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ),
@@ -261,7 +266,7 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  void _showComments(BuildContext context, Post post, FeedViewModel viewModel) {
+  void _showComments(BuildContext context, Post post, FeedViewModel viewModel, LanguageViewModel langVm) {
     final TextEditingController commentController = TextEditingController();
 
     showModalBottomSheet(
@@ -278,11 +283,11 @@ class FeedScreen extends StatelessWidget {
             children: [
               Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
-              const Text('Bình luận', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(langVm.t('comments'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const Divider(),
               Expanded(
                 child: post.comments.isEmpty
-                    ? const Center(child: Text('Chưa có bình luận nào.', style: TextStyle(color: Colors.grey)))
+                    ? Center(child: Text(langVm.t('no_notifications'), style: const TextStyle(color: Colors.grey)))
                     : ListView.builder(
                         itemCount: post.comments.length,
                         itemBuilder: (context, idx) {
@@ -315,7 +320,7 @@ class FeedScreen extends StatelessWidget {
                       ),
                       child: TextField(
                         controller: commentController,
-                        decoration: const InputDecoration(hintText: 'Thêm bình luận...', border: InputBorder.none),
+                        decoration: InputDecoration(hintText: '${langVm.t('comments')}...', border: InputBorder.none),
                       ),
                     ),
                   ),
@@ -327,7 +332,7 @@ class FeedScreen extends StatelessWidget {
                         if (commentController.text.isNotEmpty) {
                           viewModel.addComment(post.id, commentController.text);
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã gửi bình luận!')));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(langVm.t('post'))));
                         }
                       },
                       icon: const Icon(Icons.send, color: Colors.white, size: 20),

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../viewmodels/feed_viewmodel.dart';
 import '../../viewmodels/profile_viewmodel.dart';
+import '../../viewmodels/language_viewmodel.dart';
 import '../../core/theme/app_theme.dart';
 
 class CreatePostScreen extends StatefulWidget {
@@ -79,6 +80,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final langVm = context.watch<LanguageViewModel>();
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -88,13 +91,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           icon: const Icon(Icons.close, color: AppTheme.textDark),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Bài đăng mới', style: TextStyle(color: AppTheme.textDark, fontWeight: FontWeight.bold)),
+        title: Text(langVm.t('new_post'), style: const TextStyle(color: AppTheme.textDark, fontWeight: FontWeight.bold)),
         actions: [
           TextButton(
             onPressed: _isPosting ? null : _handlePost,
             child: _isPosting 
               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryOrange))
-              : const Text('Đăng', style: TextStyle(color: AppTheme.primaryOrange, fontWeight: FontWeight.bold, fontSize: 16)),
+              : Text(langVm.t('post'), style: const TextStyle(color: AppTheme.primaryOrange, fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ],
       ),
@@ -123,7 +126,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.camera_alt),
-                        title: const Text('Chụp ảnh'),
+                        title: Text(langVm.t('take_photo')),
                         onTap: () {
                           Navigator.pop(context);
                           _pickImage(ImageSource.camera);
@@ -131,7 +134,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       ),
                       ListTile(
                         leading: const Icon(Icons.photo_library),
-                        title: const Text('Chọn từ thư viện'),
+                        title: Text(langVm.t('photo_gallery')),
                         onTap: () {
                           Navigator.pop(context);
                           _pickImage(ImageSource.gallery);
@@ -166,7 +169,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 children: [
                   const Icon(Icons.location_on, color: AppTheme.primaryOrange),
                   const SizedBox(width: 12),
-                  const Text('Vị trí:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('${langVm.t('location')}:', style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButton<String>(

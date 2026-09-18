@@ -1,0 +1,12 @@
+- `[x]` Triển khai hệ thống Đa ngôn ngữ (Localization)
+    - [x] Tạo `LanguageViewModel` và bộ từ điển dịch thuật
+    - [x] Đăng ký Provider và tích hợp vào `main.dart`
+    - [x] Cập nhật văn bản trong các màn hình chính (Trang chủ, Tìm kiếm, Thực đơn, Hồ sơ)
+- `[x]` Tính năng Chỉnh sửa Hồ sơ (Edit Profile)
+    - [x] Nâng cấp `ProfileViewModel` hỗ trợ lưu thông tin cá nhân
+    - [x] Xây dựng màn hình `EditProfileScreen`
+    - [x] Kết nối giao diện Profile để cho phép chỉnh sửa
+- `[x]` Hoàn thiện logic thêm Thực đơn theo Tab
+    - [x] Cập nhật `MenuViewModel.addMenuPlan` nhận tham số trạng thái
+    - [x] Cải tiến `MenuScreen` sử dụng `TabController` để xác định vị trí hiện tại
+- `[x]` Kiểm tra và xác nhận toàn bộ tính năng hoạt động

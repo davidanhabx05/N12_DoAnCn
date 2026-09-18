@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../viewmodels/filter_viewmodel.dart';
 import '../../viewmodels/home_viewmodel.dart';
 import '../../viewmodels/profile_viewmodel.dart';
+import '../../viewmodels/language_viewmodel.dart';
 import '../../core/theme/app_theme.dart';
 
 class FilterScreen extends StatelessWidget {
@@ -13,6 +14,7 @@ class FilterScreen extends StatelessWidget {
     final vm = context.watch<FilterViewModel>();
     final homeVm = context.read<HomeViewModel>();
     final profileVm = context.read<ProfileViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -21,7 +23,7 @@ class FilterScreen extends StatelessWidget {
           icon: const Icon(Icons.close, color: AppTheme.textDark),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Bộ lọc', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+        title: Text(langVm.t('filter'), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
         centerTitle: true,
       ),
       body: ListView(
@@ -35,13 +37,15 @@ class FilterScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
-              children: const [
-                Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                SizedBox(width: 10),
+              children: [
+                const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Bộ lọc này đã bao gồm các cài đặt trong hồ sơ của bạn như Kỹ năng vào bếp và Tùy chọn ăn uống',
-                    style: TextStyle(fontSize: 12, color: Colors.blueAccent),
+                    langVm.currentLocale.languageCode == 'vi'
+                        ? 'Bộ lọc này đã bao gồm các cài đặt trong hồ sơ của bạn như Kỹ năng vào bếp và Tùy chọn ăn uống'
+                        : 'These filters include your profile settings like Cooking Skills and Diet Preferences.',
+                    style: const TextStyle(fontSize: 12, color: Colors.blueAccent),
                   ),
                 ),
               ],
@@ -59,16 +63,21 @@ class FilterScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Bộ lọc đã lưu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark)),
+                Text(langVm.t('saved_filters'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark)),
                 const SizedBox(height: 4),
-                const Text('Lưu bộ lọc hiện tại để dùng lại lần sau. Chỉ lưu trên máy này.', style: TextStyle(fontSize: 12, color: AppTheme.textGrey)),
+                Text(
+                  langVm.currentLocale.languageCode == 'vi'
+                      ? 'Lưu bộ lọc hiện tại để dùng lại lần sau. Chỉ lưu trên máy này.'
+                      : 'Save the current filter for future use. Local only.',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.textGrey),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: 'Đặt tên cho bộ lọc',
+                          hintText: langVm.currentLocale.languageCode == 'vi' ? 'Đặt tên cho bộ lọc' : 'Enter filter name',
                           filled: true,
                           fillColor: AppTheme.backgroundLight,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -87,10 +96,10 @@ class FilterScreen extends StatelessWidget {
                       ),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đã lưu bộ lọc thành công!')),
+                          SnackBar(content: Text(langVm.t('save'))),
                         );
                       },
-                      child: const Text('Lưu', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(langVm.t('save'), style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -100,14 +109,19 @@ class FilterScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Thời gian
-          _buildSectionCard('Thời gian', 'Thời gian nấu', [
+          _buildSectionCard(langVm.t('cooking_time'), langVm.t('cooking_time'), [
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: vm.timeOptions.map((time) {
                 final isSelected = vm.selectedTime == time;
+                // Translate time options if needed
+                String label = time;
+                if (langVm.currentLocale.languageCode == 'en') {
+                  label = time.replaceAll('phút', 'mins').replaceAll('Bất kỳ', 'Any');
+                }
                 return ChoiceChip(
-                  label: Text(time),
+                  label: Text(label),
                   selected: isSelected,
                   selectedColor: AppTheme.primaryOrange,
                   backgroundColor: AppTheme.backgroundLight,
@@ -120,8 +134,8 @@ class FilterScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('TỐI THIỂU · 0 PHÚT', style: TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
-                Text('TỐI ĐA · ${vm.maxTimeSlider.toInt()} PHÚT', style: const TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
+                Text(langVm.currentLocale.languageCode == 'vi' ? 'TỐI THIỂU · 0 PHÚT' : 'MIN · 0 MINS', style: const TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
+                Text('${langVm.currentLocale.languageCode == 'vi' ? 'TỐI ĐA' : 'MAX'} · ${vm.maxTimeSlider.toInt()} ${langVm.t('minutes').toUpperCase()}', style: const TextStyle(fontSize: 11, color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
               ],
             ),
             Slider(
@@ -135,13 +149,19 @@ class FilterScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Vùng miền
-          _buildSectionCard('Vùng miền', 'Ẩm thực vùng miền', [
+          _buildSectionCard(langVm.t('region'), langVm.t('region'), [
             Wrap(
               spacing: 8,
               children: vm.regionOptions.map((region) {
                 final isSelected = vm.selectedRegion == region;
+                String label = region;
+                if (langVm.currentLocale.languageCode == 'en') {
+                   if (region == 'Miền bắc') label = 'North';
+                   else if (region == 'Miền trung') label = 'Central';
+                   else if (region == 'Miền nam') label = 'South';
+                }
                 return ChoiceChip(
-                  label: Text(region),
+                  label: Text(label),
                   selected: isSelected,
                   selectedColor: AppTheme.primaryOrange,
                   backgroundColor: AppTheme.backgroundLight,
@@ -154,14 +174,22 @@ class FilterScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Thời tiết
-          _buildSectionCard('Thời tiết', 'Phù hợp với thời tiết', [
+          _buildSectionCard(langVm.t('weather'), langVm.t('weather'), [
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: vm.weatherOptions.map((weather) {
                 final isSelected = vm.selectedWeather == weather;
+                String label = weather;
+                if (langVm.currentLocale.languageCode == 'en') {
+                   if (weather == 'Nắng') label = 'Sunny';
+                   else if (weather == 'Mưa') label = 'Rainy';
+                   else if (weather == 'Mát mẻ') label = 'Cool';
+                   else if (weather == 'Se lạnh') label = 'Chilly';
+                   else if (weather == 'Lạnh') label = 'Cold';
+                }
                 return ChoiceChip(
-                  label: Text(weather),
+                  label: Text(label),
                   selected: isSelected,
                   selectedColor: AppTheme.primaryOrange,
                   backgroundColor: AppTheme.backgroundLight,
@@ -174,14 +202,22 @@ class FilterScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Tâm trạng
-          _buildSectionCard('Tâm trạng', 'Phù hợp khi bạn đang...', [
+          _buildSectionCard(langVm.t('mood'), langVm.t('mood'), [
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: vm.moodOptions.map((mood) {
                 final isSelected = vm.selectedMood == mood;
+                String label = mood;
+                if (langVm.currentLocale.languageCode == 'en') {
+                   if (mood == 'Vui vẻ') label = 'Happy';
+                   else if (mood == 'Buồn') label = 'Sad';
+                   else if (mood == 'Bực bội') label = 'Angry';
+                   else if (mood == 'Phấn khích') label = 'Excited';
+                   else if (mood == 'Chán nản') label = 'Bored';
+                }
                 return ChoiceChip(
-                  label: Text(mood),
+                  label: Text(label),
                   selected: isSelected,
                   selectedColor: AppTheme.primaryOrange,
                   backgroundColor: AppTheme.backgroundLight,
@@ -211,7 +247,7 @@ class FilterScreen extends StatelessWidget {
                   vm.clearAll();
                   homeVm.applyFilter(vm, profileVm.preferences.dietType);
                 },
-                child: const Text('Xóa tất cả', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                child: Text(langVm.t('clear_all'), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
               ),
             ),
             const SizedBox(width: 12),
@@ -228,7 +264,7 @@ class FilterScreen extends StatelessWidget {
                   homeVm.applyFilter(vm, profileVm.preferences.dietType);
                   Navigator.pop(context);
                 },
-                child: const Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
+                child: Text(langVm.t('apply'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
               ),
             ),
           ],

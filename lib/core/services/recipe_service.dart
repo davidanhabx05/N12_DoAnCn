@@ -74,6 +74,7 @@ class RecipeService {
     }
 
     return RecipeDetail(
+      dish: dish, // Thêm dòng này
       id: dish.id,
       title: title,
       description: dish.description,
