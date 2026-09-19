@@ -1,0 +1,8 @@
+- [x] Hoàn thiện bộ lọc và thông báo cho Trang chủ
+    - [x] Tạo `NotificationViewModel` quản lý thông báo động
+    - [x] Đăng ký `NotificationViewModel` trong `main.dart`
+    - [x] Nâng cấp `HomeViewModel` với logic lọc đa tiêu chí (Thời gian, Vùng miền, Tâm trạng)
+    - [x] Cập nhật `HomeScreen` hiển thị món ăn sau khi lọc và badge thông báo
+    - [x] Hoàn thiện `NotificationScreen` với chức năng đọc/xóa
+    - [x] Kết nối `FilterScreen` để áp dụng bộ lọc vào `HomeViewModel`
+- [x] Kiểm tra và xác nhận toàn bộ tính năng hoạt động

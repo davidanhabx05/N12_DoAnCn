@@ -1,0 +1,16 @@
+- [x] Update Data Models
+    - [x] Expand `UserPreferences` model with health and cooking fields
+- [x] Update ViewModels logic
+    - [x] `ProfileViewModel`: Add BMI/TDEE calculations and preferences management
+    - [x] `ChatbotViewModel`: Support structured responses (Recipe lists, steps)
+- [x] Redesign AI Assistant UI
+    - [x] Header and message bubbles
+    - [x] Recipe card and step-by-step components
+- [x] Redesign Random Dish (Ăn theo ý trời)
+    - [x] Modal UI and animations
+    - [x] Result card with details
+- [x] Update Preference Settings
+    - [x] Comprehensive cooking skill and dietary choice selectors
+- [x] Redesign Health Stats
+    - [x] Empty state and Health Profile form
+    - [x] BMI/TDEE display boxes
