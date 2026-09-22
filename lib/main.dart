@@ -7,8 +7,6 @@ import 'package:n12_doan_cn/core/theme/app_theme.dart';
 import 'package:n12_doan_cn/viewmodels/app_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/home_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/search_viewmodel.dart';
-import 'package:n12_doan_cn/viewmodels/feed_viewmodel.dart';
-import 'package:n12_doan_cn/viewmodels/menu_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/profile_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/filter_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/settings_viewmodel.dart';
@@ -50,8 +48,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => SearchViewModel()),
-        ChangeNotifierProvider(create: (_) => FeedViewModel()),
-        ChangeNotifierProvider(create: (_) => MenuViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => FilterViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),

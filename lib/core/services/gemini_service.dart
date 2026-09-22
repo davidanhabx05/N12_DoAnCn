@@ -14,14 +14,15 @@ class GeminiService {
     if (apiKey.isEmpty) return;
 
     try {
-      // Sử dụng gemini-1.5-flash là model mới nhất và nhẹ nhất
       _model = GenerativeModel(
         model: 'gemini-1.5-flash',
         apiKey: apiKey,
         systemInstruction: Content.system(
-          'Bạn là một chuyên gia ẩm thực Việt Nam chuyên nghiệp. '
-          'Nhiệm vụ của bạn là tư vấn món ăn, hướng dẫn nấu ăn và giải đáp các thắc mắc về ẩm thực. '
-          'Hãy luôn trả lời bằng tiếng Việt, lịch sự, ngắn gọn và có kiến thức chuyên môn cao.'
+          'Bạn là Quản gia AI ẩm thực chuyên tư vấn món ăn và gợi ý quán ăn lân cận cho người dùng. '
+          'Hãy giúp người dùng chọn món ăn phù hợp dựa trên tâm trạng, ngân sách và sở thích của họ. '
+          'QUY TẮC BẮT BUỘC: Bạn CHỈ gợi ý món ăn ngoài và chỉ đường đến quán ăn. '
+          'KHÔNG hướng dẫn nấu ăn, KHÔNG cung cấp công thức hay nguyên liệu nấu nướng. '
+          'Luôn trả lời bằng tiếng Việt, thân thiện, đồng cảm và ngắn gọn.'
         ),
       );
       _chatSession = _model!.startChat();
@@ -50,7 +51,6 @@ class GeminiService {
       } catch (e) {
         print('Lỗi gọi AI thật: $e');
         
-        // Nếu lỗi do model không tồn tại hoặc sai version, thử với gemini-pro
         if (e.toString().contains('not found') || e.toString().contains('v1beta')) {
           try {
              final fallbackModel = GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
@@ -64,27 +64,24 @@ class GeminiService {
     }
 
     // --- FALLBACK SMART ASSISTANT ---
-    // Nếu AI thật thất bại, dùng logic thông minh này để chữa cháy
     await Future.delayed(const Duration(milliseconds: 600));
     final q = prompt.toLowerCase();
     
     if (q.contains('chào') || q.contains('hi')) {
-      return 'Xin chào! Tôi là trợ lý ẩm thực của bạn. Hôm nay bạn muốn nấu món gì hay cần tôi gợi ý thực đơn?';
+      return 'Xin chào! Tôi là Trợ lý AI Ẩm thực. Hôm nay bạn thấy thế nào? Muốn ăn món gì nóng hổi hay tìm quán ăn ngon gần đây?';
     } else if (q.contains('phở')) {
-      return 'Phở là tinh hoa ẩm thực Việt. Bạn nên thử Phở Bò tái hoặc Phở Gà. Bí quyết nằm ở nước hầm xương kèm thảo quả, quế và hồi nướng thơm lừng.';
+      return 'Phở là lựa chọn tuyệt vời! Bạn có thể thử Phở Bò Thìn Lò Đúc hoặc Phở Bát Đàn tại Hà Nội. Rất nóng hổi và đậm đà!';
     } else if (q.contains('cơm')) {
-      return 'Cơm là món ăn quen thuộc nhưng không thể thiếu. Tôi gợi ý Cơm Tấm sườn bì chả hoặc Cơm Chiên hải sản. Rất ngon và đủ chất!';
+      return 'Bữa ăn chắc bụng với Cơm Niêu Tố Uyên hoặc Cơm Tấm ngon tuyệt. Tôi có thể chỉ đường tới quán gần nhất cho bạn!';
     } else if (q.contains('bún')) {
-      return 'Bún Việt Nam rất phong phú, từ Bún Bò Huế cay nồng đến Bún Riêu cua thanh mát. Bạn đang thèm loại nào?';
-    } else if (q.contains('nấu') || q.contains('làm')) {
-      return 'Để nấu ngon, quan trọng nhất là nguyên liệu tươi. Bạn chọn món đi, tôi sẽ chỉ bạn từng bước sơ chế và nêm nếm chuẩn vị.';
+      return 'Bún Chả Hương Liên (Obama) hay Bún Thang Cầu Gỗ là những gợi ý đỉnh cao cho bữa trưa hôm nay.';
     } else if (q.contains('healthy') || q.contains('chay') || q.contains('giảm cân')) {
-      return 'Lựa chọn tuyệt vời! Gỏi cuốn tôm thịt hoặc các loại Salad ức gà là gợi ý hàng đầu. Vừa ngon miệng lại cực kỳ tốt cho vóc dáng.';
+      return 'Lựa chọn tuyệt vời! Bạn nên thử món Chay Aummee Châu Long hoặc Salad Station Tô Ngọc Vân. Vừa ngon miệng lại tốt cho vóc dáng!';
     } else if (q.contains('cảm ơn')) {
-      return 'Rất vui được hỗ trợ bạn! Chúc bạn có những bữa ăn thật ngon miệng nhé.';
+      return 'Rất vui được hỗ trợ bạn! Chúc bạn có một bữa ăn ngon miệng nhé.';
     }
     
-    return 'Chào bạn! Câu hỏi của bạn rất hay. Với kinh nghiệm của tôi, bạn nên thử món "Túi Ngọc Xốt Mè" cho bữa tối nay - một món ăn độc đáo và giàu dinh dưỡng.';
+    return 'Gợi ý tuyệt vời cho bạn hôm nay là món Phở Bò Thìn Lò Đúc hoặc Bún Chả Hương Liên. Bạn có muốn xem danh sách các quán gần đây không?';
   }
 
   void resetChat() {
