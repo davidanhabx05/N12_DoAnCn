@@ -2,9 +2,9 @@ name: Flutter
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main","hieu"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "hieu"]
 
 jobs:
   build:
