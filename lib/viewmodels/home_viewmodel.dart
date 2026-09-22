@@ -24,21 +24,21 @@ class HomeViewModel extends ChangeNotifier {
     };
 
     final List<String> fallbackIds = [
-      '2641886', '1600711', '2410602', '1624487', '4109128', 
+      '2641886', '1600711', '2410602', '1624487', '4109128',
       '1273765', '1731535', '1059943', '1640777', '1143754'
     ];
 
     String getImageUrl(String title, int index) {
       String? matchedId;
       final lowerTitle = title.toLowerCase();
-      
+
       for (var entry in dishImages.entries) {
         if (lowerTitle.contains(entry.key.toLowerCase())) {
           matchedId = entry.value[index % entry.value.length];
           break;
         }
       }
-      
+
       final finalId = matchedId ?? fallbackIds[index % fallbackIds.length];
       return 'https://images.pexels.com/photos/$finalId/pexels-photo-$finalId.jpeg?auto=compress&cs=tinysrgb&w=1000';
     }
@@ -60,9 +60,7 @@ class HomeViewModel extends ChangeNotifier {
         likesCount: 4,
         isLiked: true,
         isSpecialOfTheWeek: true,
-        region: 'Miền nam',
-        weather: 'Mát mẻ',
-        mood: 'Vui vẻ',
+        price: '45.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '2',
@@ -76,9 +74,7 @@ class HomeViewModel extends ChangeNotifier {
         likesCount: 28,
         isLiked: false,
         isSpecialOfTheWeek: true,
-        region: 'Miền nam',
-        weather: 'Nắng',
-        mood: 'Phấn khích',
+        price: '35.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '3',
@@ -91,9 +87,7 @@ class HomeViewModel extends ChangeNotifier {
         category: 'Bữa sáng',
         likesCount: 156,
         isLiked: false,
-        region: 'Miền bắc',
-        weather: 'Se lạnh',
-        mood: 'Vui vẻ',
+        price: '60.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '4',
@@ -106,9 +100,7 @@ class HomeViewModel extends ChangeNotifier {
         category: 'Bữa trưa',
         likesCount: 89,
         isLiked: true,
-        region: 'Miền nam',
-        weather: 'Nắng',
-        mood: 'Vui vẻ',
+        price: '65.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '5',
@@ -121,9 +113,7 @@ class HomeViewModel extends ChangeNotifier {
         category: 'Healthy',
         likesCount: 72,
         isLiked: false,
-        region: 'Miền nam',
-        weather: 'Nắng',
-        mood: 'Vui vẻ',
+        price: '40.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '6',
@@ -136,9 +126,7 @@ class HomeViewModel extends ChangeNotifier {
         category: 'Bữa trưa',
         likesCount: 110,
         isLiked: false,
-        region: 'Miền bắc',
-        weather: 'Mát mẻ',
-        mood: 'Phấn khích',
+        price: '55.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '7',
@@ -151,9 +139,7 @@ class HomeViewModel extends ChangeNotifier {
         category: 'Ăn nhẹ',
         likesCount: 30,
         isLiked: false,
-        region: 'Miền trung',
-        weather: 'Mát mẻ',
-        mood: 'Chán nản',
+        price: '30.000đ', // <--- Đã thêm giá
       ),
       Dish(
         id: '8',
@@ -166,17 +152,15 @@ class HomeViewModel extends ChangeNotifier {
         category: 'Bữa tối',
         likesCount: 45,
         isLiked: false,
-        region: 'Miền nam',
-        weather: 'Mưa',
-        mood: 'Buồn',
+        price: '80.000đ', // <--- Đã thêm giá
       ),
     ];
 
     final List<String> categoriesList = ['Bữa sáng', 'Bữa trưa', 'Bữa tối', 'Healthy', 'Ăn nhẹ'];
-    
+
     final List<String> mainDishes = [
-      'Phở', 'Bún bò', 'Cơm tấm', 'Hủ tiếu', 'Gỏi cuốn', 'Canh chua', 'Mì Quảng', 'Cháo gà', 'Lẩu thái', 'Bánh xèo', 
-      'Xôi xéo', 'Bánh cuốn', 'Miến trộn', 'Cơm rang', 'Bún riêu', 'Bún chả', 'Cao lầu', 'Bánh đa cua', 'Bún mắm', 
+      'Phở', 'Bún bò', 'Cơm tấm', 'Hủ tiếu', 'Gỏi cuốn', 'Canh chua', 'Mì Quảng', 'Cháo gà', 'Lẩu thái', 'Bánh xèo',
+      'Xôi xéo', 'Bánh cuốn', 'Miến trộn', 'Cơm rang', 'Bún riêu', 'Bún chả', 'Cao lầu', 'Bánh đa cua', 'Bún mắm',
       'Hủ tiếu Nam Vang', 'Bánh canh', 'Chả cá Lã Vọng', 'Bún đậu mắm tôm', 'Gỏi đu đủ', 'Bò kho', 'Phở cuốn', 'Bún thang', 'Bánh mì kẹp'
     ];
     final List<String> ingredients = [
@@ -188,12 +172,14 @@ class HomeViewModel extends ChangeNotifier {
 
     for (int i = 9; i <= 500; i++) {
       final cat = categoriesList[i % categoriesList.length];
+
+      // Tạo tên duy nhất bằng cách kết hợp các thành phần mà không dùng số thứ tự
       final mainIdx = i % mainDishes.length;
       final ingIdx = (i ~/ mainDishes.length) % ingredients.length;
       final adjIdx = (i ~/ (mainDishes.length * ingredients.length)) % adjectives.length;
-      
+
       final title = '${mainDishes[mainIdx]} ${ingredients[ingIdx]} ${adjectives[adjIdx]}';
-      
+
       initialDishes.add(Dish(
         id: '$i',
         title: title,
@@ -205,9 +191,7 @@ class HomeViewModel extends ChangeNotifier {
         category: cat,
         likesCount: i % 100,
         isLiked: false,
-        region: regions[i % regions.length],
-        weather: weathers[i % weathers.length],
-        mood: moods[i % moods.length],
+        price: '${(i % 5 + 1) * 30}.000đ', // <--- Đã thêm giá tự động (30k, 60k, 90k, 120k, 150k)
       ));
     }
     return initialDishes;
@@ -219,10 +203,10 @@ class HomeViewModel extends ChangeNotifier {
   bool get isFilterActive => _isFilterActive;
 
   void applyFilter(FilterViewModel filterVm, String dietType) {
-    _isFilterActive = filterVm.selectedTime != 'Bất kỳ' || 
-                      filterVm.selectedRegion != null || 
-                      filterVm.selectedWeather != null || 
-                      filterVm.selectedMood != null;
+    _isFilterActive = filterVm.selectedTime != 'Bất kỳ' ||
+        filterVm.selectedRegion != null ||
+        filterVm.selectedWeather != null ||
+        filterVm.selectedMood != null;
 
     _filteredDishes = _allDishes.where((dish) {
       // 1. Lọc theo chế độ ăn (dietType)
@@ -245,17 +229,20 @@ class HomeViewModel extends ChangeNotifier {
       // 3. Lọc chính xác theo Vùng miền, Thời tiết, Tâm trạng
       bool matchesRegion = true;
       if (filterVm.selectedRegion != null) {
-        matchesRegion = dish.region == filterVm.selectedRegion;
+        matchesRegion = dish.title.toLowerCase().contains(filterVm.selectedRegion!.toLowerCase()) ||
+            dish.description.toLowerCase().contains(filterVm.selectedRegion!.toLowerCase());
       }
 
       bool matchesWeather = true;
       if (filterVm.selectedWeather != null) {
-        matchesWeather = dish.weather == filterVm.selectedWeather;
+        matchesWeather = dish.title.toLowerCase().contains(filterVm.selectedWeather!.toLowerCase()) ||
+            dish.description.toLowerCase().contains(filterVm.selectedWeather!.toLowerCase());
       }
 
       bool matchesMood = true;
       if (filterVm.selectedMood != null) {
-        matchesMood = dish.mood == filterVm.selectedMood;
+        matchesMood = dish.title.toLowerCase().contains(filterVm.selectedMood!.toLowerCase()) ||
+            dish.description.toLowerCase().contains(filterVm.selectedMood!.toLowerCase());
       }
 
       return matchesDiet && matchesTime && matchesRegion && matchesWeather && matchesMood;
@@ -298,22 +285,20 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void toggleLikeCurrent() {
-    if (_filteredDishes.isNotEmpty) {
-      final dish = currentDish;
-      final index = _allDishes.indexWhere((d) => d.id == dish.id);
-      if (index != -1) {
-        final updated = _allDishes[index].copyWith(
-          isLiked: !_allDishes[index].isLiked,
-          likesCount: _allDishes[index].isLiked ? _allDishes[index].likesCount - 1 : _allDishes[index].likesCount + 1,
-        );
-        _allDishes[index] = updated;
-        
-        final filteredIndex = _filteredDishes.indexWhere((d) => d.id == dish.id);
-        if (filteredIndex != -1) {
-          _filteredDishes[filteredIndex] = updated;
-        }
-        notifyListeners();
-      }
-    }
+    if (_filteredDishes.isEmpty) return;
+    final dish = currentDish;
+    final updated = dish.copyWith(
+      isLiked: !dish.isLiked,
+      likesCount: dish.isLiked ? dish.likesCount - 1 : dish.likesCount + 1,
+    );
+
+    // Cập nhật trong cả 2 danh sách
+    final idxInAll = _allDishes.indexWhere((d) => d.id == dish.id);
+    if (idxInAll != -1) _allDishes[idxInAll] = updated;
+
+    final idxInFiltered = _filteredDishes.indexWhere((d) => d.id == dish.id);
+    if (idxInFiltered != -1) _filteredDishes[idxInFiltered] = updated;
+
+    notifyListeners();
   }
 }

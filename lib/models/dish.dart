@@ -5,14 +5,12 @@ class Dish {
   final String imageUrl;
   final int calories;
   final int prepTimeMinutes;
-  final String difficulty; // e.g., "Trung bình", "Dễ"
-  final String category; // e.g., "Healthy", "Bữa sáng", "Ăn nhẹ"
+  final String difficulty;
+  final String category;
   final int likesCount;
   final bool isLiked;
   final bool isSpecialOfTheWeek;
-  final String? region; // 'Miền bắc', 'Miền trung', 'Miền nam'
-  final String? weather; // 'Nắng', 'Mưa', 'Mát mẻ', 'Se lạnh', 'Lạnh'
-  final String? mood; // 'Vui vẻ', 'Buồn', 'Bực bội', 'Phấn khích', 'Chán nản'
+  final String price;
 
   Dish({
     required this.id,
@@ -26,9 +24,7 @@ class Dish {
     this.likesCount = 0,
     this.isLiked = false,
     this.isSpecialOfTheWeek = false,
-    this.region,
-    this.weather,
-    this.mood,
+    required this.price,
   });
 
   Dish copyWith({
@@ -43,9 +39,7 @@ class Dish {
     int? likesCount,
     bool? isLiked,
     bool? isSpecialOfTheWeek,
-    String? region,
-    String? weather,
-    String? mood,
+    String? price,
   }) {
     return Dish(
       id: id ?? this.id,
@@ -59,9 +53,7 @@ class Dish {
       likesCount: likesCount ?? this.likesCount,
       isLiked: isLiked ?? this.isLiked,
       isSpecialOfTheWeek: isSpecialOfTheWeek ?? this.isSpecialOfTheWeek,
-      region: region ?? this.region,
-      weather: weather ?? this.weather,
-      mood: mood ?? this.mood,
+      price: price ?? this.price,
     );
   }
 }

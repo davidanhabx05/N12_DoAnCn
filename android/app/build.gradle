@@ -25,7 +25,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.example.n12doancn.n12_doan_cn"
     compileSdk flutter.compileSdkVersion
-    ndkVersion "25.1.8937393"
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -38,11 +38,10 @@ android {
 
     defaultConfig {
         applicationId "com.example.n12doancn.n12_doan_cn"
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -56,6 +55,4 @@ flutter {
     source '../..'
 }
 
-dependencies {
-    implementation 'androidx.multidex:multidex:2.0.1'
-}
+dependencies {}

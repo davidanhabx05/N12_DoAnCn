@@ -28,7 +28,7 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: "ssets/.env");
   } catch (_) {}
 
   try {
