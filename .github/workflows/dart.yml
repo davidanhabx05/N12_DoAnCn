@@ -25,11 +25,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        
-      - name: Create dummy .env file
-        run: |
-          mkdir -p assets
-          touch assets/.env
 
       - name: Analyze project
         run: flutter analyze
