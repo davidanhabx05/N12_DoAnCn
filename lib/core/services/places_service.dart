@@ -11,7 +11,7 @@ class PlacesService {
     try {
       final apiKey = dotenv.env['GOOGLE_PLACES_API_KEY'] ?? dotenv.env['GEMINI_API_KEY'] ?? '';
       if (apiKey.isEmpty) {
-        return ['Nhà hàng Chay An Phúc', 'Quán Ăn Healthy Green', 'Bếp Nhà Mình Restaurant'];
+        return ['Phở Thìn Lò Đúc', 'Bún Chả Hương Liên (Obama)', 'Chả Cá Lã Vọng', 'Chay Aummee Châu Long', 'Quán Ăn Ngon Phan Bội Châu'];
       }
 
       final url = Uri.parse(
@@ -26,7 +26,7 @@ class PlacesService {
           return results.map((place) => place['name'].toString()).toList();
         }
       }
-      return ['Nhà hàng Chay An Phúc', 'Quán Ăn Healthy Green', 'Bếp Nhà Mình Restaurant'];
+      return ['Phở Thìn Lò Đúc', 'Bún Chả Hương Liên (Obama)', 'Chả Cá Lã Vọng', 'Chay Aummee Châu Long', 'Quán Ăn Ngon Phan Bội Châu'];
     } catch (e) {
       return ['Nhà hàng Chay An Phúc', 'Quán Ăn Healthy Green', 'Bếp Nhà Mình Restaurant'];
     }

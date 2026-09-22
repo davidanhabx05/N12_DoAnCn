@@ -4,10 +4,8 @@ import '../viewmodels/app_viewmodel.dart';
 import '../viewmodels/language_viewmodel.dart';
 import '../core/theme/app_theme.dart';
 import 'home/home_screen.dart';
-import 'feed/feed_screen.dart';
 import 'search/search_screen.dart';
 import 'restaurant/restaurant_screen.dart';
-import 'menu/menu_screen.dart';
 import 'profile/profile_screen.dart';
 
 class MainScaffold extends StatelessWidget {
@@ -15,10 +13,8 @@ class MainScaffold extends StatelessWidget {
 
   static const List<Widget> _screens = [
     HomeScreen(),
-    FeedScreen(),
     SearchScreen(),
     RestaurantScreen(),
-    MenuScreen(),
     ProfileScreen(),
   ];
 
@@ -56,11 +52,6 @@ class MainScaffold extends StatelessWidget {
               label: langVm.t('home'),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.dynamic_feed_outlined),
-              activeIcon: const Icon(Icons.dynamic_feed),
-              label: langVm.t('feed'),
-            ),
-            BottomNavigationBarItem(
               icon: const Icon(Icons.search),
               activeIcon: const Icon(Icons.search),
               label: langVm.t('search'),
@@ -69,11 +60,6 @@ class MainScaffold extends StatelessWidget {
               icon: const Icon(Icons.map_outlined),
               activeIcon: const Icon(Icons.map),
               label: langVm.t('restaurants'),
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.calendar_month_outlined),
-              activeIcon: const Icon(Icons.calendar_month),
-              label: langVm.t('menu'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline),

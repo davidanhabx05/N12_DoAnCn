@@ -8,7 +8,7 @@ import '../models/dish.dart';
 import '../models/recipe_detail.dart';
 import '../models/user_preferences.dart';
 
-enum ChatMessageType { text, recipeList, recipeStep }
+enum ChatMessageType { text, recipeList, restaurantSuggestion }
 
 class ChatMessage {
   final String text;
@@ -16,7 +16,6 @@ class ChatMessage {
   final ChatMessageType type;
   final List<Dish>? dishes;
   final RecipeDetail? recipeDetail;
-  final int? currentStepIndex;
 
   ChatMessage({
     required this.text,
@@ -24,7 +23,6 @@ class ChatMessage {
     this.type = ChatMessageType.text,
     this.dishes,
     this.recipeDetail,
-    this.currentStepIndex,
   });
 }
 
@@ -35,9 +33,6 @@ class ChatbotViewModel extends ChangeNotifier {
   
   // Ngữ context ứng dụng
   List<Dish> _availableDishes = [];
-  List<String> _regions = [];
-  List<String> _weathers = [];
-  List<String> _moods = [];
   List<String> _restaurantNames = [];
   UserPreferences? _userPrefs;
 
@@ -53,9 +48,6 @@ class ChatbotViewModel extends ChangeNotifier {
     UserPreferences? prefs,
   }) {
     _availableDishes = dishes;
-    _regions = regions;
-    _weathers = weathers;
-    _moods = moods;
     _restaurantNames = restaurants;
     _userPrefs = prefs;
     notifyListeners();
@@ -68,7 +60,7 @@ class ChatbotViewModel extends ChangeNotifier {
   void _addWelcomeMessage() {
     if (_history.isEmpty) {
       _history.add(ChatMessage(
-        text: 'Xin chào! Tôi là chuyên gia ẩm thực AI. Tôi biết mọi giá cả và công thức món ăn trong app. Bạn muốn hỏi về món nào?',
+        text: 'Xin chào! Tôi là Trợ lý AI Ẩm thực. Tôi có thể lắng nghe chia sẻ, phân tích tâm trạng & ngân sách của bạn để gợi ý các món ăn ngon và chỉ đường đến quán ăn lân cận ở Hà Nội. Bạn muốn tìm món gì hôm nay?',
         isUser: false,
       ));
     }
@@ -91,7 +83,6 @@ class ChatbotViewModel extends ChangeNotifier {
 
     final currentTime = DateFormat('EEEE, dd/MM/yyyy HH:mm').format(DateTime.now());
     
-    // 1. TÌM KIẾM DỮ LIỆU MÓN ĂN (RECIPES & PRICES)
     String dishContext = "";
     Dish? foundDish;
     RecipeDetail? foundDetail;
@@ -103,13 +94,10 @@ class ChatbotViewModel extends ChangeNotifier {
       if (lowerText.contains(dish.title.toLowerCase())) {
         foundDish = dish;
         foundDetail = RecipeService.getRecipeDetail(dish);
-        dishContext += "\nTHÔNG TIN CHI TIẾT MÓN '${dish.title}':\n"
-            "- Giá bán: ${foundDetail.priceVnd} VNĐ\n"
-            "- Giá trị dinh dưỡng: ${dish.calories} kcal, ${foundDetail.nutritionInfo}\n"
-            "- Thời gian chuẩn bị: ${dish.prepTimeMinutes} phút\n"
-            "- Độ khó: ${dish.difficulty}\n"
-            "- NGUYÊN LIỆU: ${foundDetail.ingredients.map((i) => "${i.name} (${i.amount})").join(", ")}\n"
-            "- CÔNG THỨC CÁC BƯỚC NẤU: ${foundDetail.steps.asMap().entries.map((e) => "Bước ${e.key + 1}: ${e.value}").join(". ")}\n";
+        dishContext += "\nTHÔNG TIN MÓN '${dish.title}':\n"
+            "- Giá trung bình tại quán: ${foundDetail.priceVnd} VNĐ\n"
+            "- Giá trị dinh dưỡng: ${dish.calories} kcal\n"
+            "- Danh mục: ${dish.category}\n";
         break; 
       }
     }
@@ -117,23 +105,25 @@ class ChatbotViewModel extends ChangeNotifier {
     // 2. TÌM KIẾM DỮ LIỆU TÍNH NĂNG
     String featureContext = "";
     if (lowerText.contains('lọc') || lowerText.contains('tìm kiếm')) {
-      featureContext = "\nỨng dụng có các bộ lọc thông minh sau: Vùng miền, Thời tiết, Tâm trạng.";
+      featureContext = "\nỨng dụng có các bộ lọc thông minh: Vùng miền, Thời tiết, Tâm trạng, Ngân sách.";
     }
 
     // 3. TÌM KIẾM DỮ LIỆU NHÀ HÀNG
     String restaurantContext = "";
-    if (lowerText.contains('quán') || lowerText.contains('nhà hàng')) {
-      restaurantContext = "\nDanh sách nhà hàng đề xuất: ${_restaurantNames.take(5).join(", ")}.";
+    if (lowerText.contains('quán') || lowerText.contains('nhà hàng') || lowerText.contains('ở đâu')) {
+      restaurantContext = "\nDanh sách nhà hàng đề xuất tại Hà Nội: ${_restaurantNames.take(5).join(", ")}.";
     }
 
     // 4. THÔNG TIN SỞ THÍCH CÁ NHÂN
     String prefContext = "";
     if (_userPrefs != null) {
-      prefContext = "\nSỞ THÍCH CỦA NGƯỜI DÙNG: Chế độ ăn ${_userPrefs!.dietType}, Khẩu vị ${_userPrefs!.favoriteFlavors.join(", ")}, Ngân sách ${_userPrefs!.budgetLevel}.\n";
+      prefContext = "\nSỞ THÍCH NGƯỜI DÙNG: Chế độ ăn ${_userPrefs!.dietType}, Khẩu vị ${_userPrefs!.favoriteFlavors.join(", ")}, Ngân sách ${_userPrefs!.budgetLevel}.\n";
     }
 
     final systemContext = 
-        "Hệ thống: Bạn là 'Quản gia AI' của ứng dụng 'Hôm Nay Ăn Gì'. \n"
+        "Hệ thống: Bạn là 'Trợ lý AI Ẩm thực' của ứng dụng 'Hôm Nay Ăn Gì'. \n"
+        "Nhiệm vụ: Tư vấn món ăn ngoài và gợi ý quán ăn cho người dùng dựa trên tâm trạng & ngân sách. \n"
+        "QUY TẮC BẮT BUỘC: CHỈ gợi ý món ăn ngoài và chỉ đường đến quán ăn. KHÔNG hướng dẫn nấu ăn hay cung cấp công thức chế biến. \n"
         "Thời gian hiện tại: $currentTime. \n"
         "DỮ LIỆU ỨNG DỤNG CUNG CẤP:\n"
         "$dishContext $featureContext $restaurantContext $prefContext \n\n"
@@ -158,15 +148,14 @@ class ChatbotViewModel extends ChangeNotifier {
     }
 
     if (response != null) {
-      if (foundDish != null && (lowerText.contains('nấu') || lowerText.contains('công thức') || lowerText.contains('làm sao'))) {
+      if (foundDish != null) {
         _history.add(ChatMessage(
           text: response,
           isUser: false,
-          type: ChatMessageType.recipeStep,
+          type: ChatMessageType.restaurantSuggestion,
           recipeDetail: foundDetail,
-          currentStepIndex: 0,
         ));
-      } else if (lowerText.contains('gợi ý') || lowerText.contains('ăn gì')) {
+      } else if (lowerText.contains('gợi ý') || lowerText.contains('ăn gì') || lowerText.contains('đói')) {
         _history.add(ChatMessage(
           text: response,
           isUser: false,
@@ -214,22 +203,6 @@ class ChatbotViewModel extends ChangeNotifier {
       }
     } catch (_) {}
     return null;
-  }
-
-  void nextStep(int messageIndex) {
-    final msg = _history[messageIndex];
-    if (msg.recipeDetail != null && msg.currentStepIndex != null) {
-      if (msg.currentStepIndex! < msg.recipeDetail!.steps.length - 1) {
-        _history[messageIndex] = ChatMessage(
-          text: msg.text,
-          isUser: false,
-          type: ChatMessageType.recipeStep,
-          recipeDetail: msg.recipeDetail,
-          currentStepIndex: msg.currentStepIndex! + 1,
-        );
-        notifyListeners();
-      }
-    }
   }
 
   void _addErrorMessage(String message) {

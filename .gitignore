@@ -22,5 +22,6 @@
 
 # Editor directories and files
 .vscode/
+.artifacts/
 *.env
 *.g.dart

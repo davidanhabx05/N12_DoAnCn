@@ -9,7 +9,7 @@ import 'package:n12_doan_cn/viewmodels/restaurant_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/profile_viewmodel.dart';
 import 'package:n12_doan_cn/viewmodels/language_viewmodel.dart';
 import 'package:n12_doan_cn/core/theme/app_theme.dart';
-import 'package:n12_doan_cn/features/recipe/recipe_detail_screen.dart';
+import 'package:n12_doan_cn/features/restaurant/restaurant_screen.dart';
 import 'package:n12_doan_cn/models/dish.dart';
 
 class ChatbotScreen extends StatefulWidget {
@@ -54,6 +54,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         );
       }
     });
+  }
+
+  void _findRestaurantForDish(String dishTitle) {
+    final restaurantVm = context.read<RestaurantViewModel>();
+    restaurantVm.setSearchQuery(dishTitle);
+    restaurantVm.fetchNearbyFromPlaces();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RestaurantScreen()),
+    );
   }
 
   @override
@@ -148,7 +158,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 children: [
                   Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
                   const SizedBox(width: 4),
-                  const Text('Đang trực bếp', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  const Text('Sẵn sàng tư vấn quán', style: TextStyle(fontSize: 11, color: Colors.grey)),
                 ],
               ),
             ],
@@ -219,9 +229,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     children: [
                       Text(msg.text, style: const TextStyle(color: AppTheme.textDark, fontSize: 15)),
                       if (msg.type == ChatMessageType.recipeList && msg.dishes != null)
-                        _buildRecipeList(msg.dishes!),
-                      if (msg.type == ChatMessageType.recipeStep && msg.recipeDetail != null)
-                        _buildRecipeStep(msg, index, viewModel, langVm),
+                        _buildDishList(msg.dishes!),
+                      if (msg.type == ChatMessageType.restaurantSuggestion && msg.recipeDetail != null)
+                        _buildRestaurantCard(msg),
                     ],
                   ),
                 ),
@@ -234,12 +244,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     );
   }
 
-  Widget _buildRecipeList(List<Dish> dishes) {
+  Widget _buildDishList(List<Dish> dishes) {
     return Column(
       children: [
         const SizedBox(height: 12),
         ...dishes.map((dish) => GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(dish: dish))),
+          onTap: () => _findRestaurantForDish(dish.title),
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(8),
@@ -259,17 +269,18 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(dish.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.access_time, size: 12, color: Colors.grey),
-                          Text(' ${dish.prepTimeMinutes} phút  ', style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                          const Icon(Icons.local_fire_department, size: 12, color: Colors.orange),
-                          Text(' ${dish.difficulty}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                          const Icon(Icons.location_on, size: 12, color: AppTheme.primaryOrange),
+                          const SizedBox(width: 2),
+                          const Text('Tìm quán gần đây', style: TextStyle(fontSize: 11, color: AppTheme.primaryOrange, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
                   ),
                 ),
+                const Icon(Icons.chevron_right, color: AppTheme.primaryOrange),
               ],
             ),
           ),
@@ -278,57 +289,44 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     );
   }
 
-  Widget _buildRecipeStep(ChatMessage msg, int index, ChatbotViewModel viewModel, LanguageViewModel langVm) {
+  Widget _buildRestaurantCard(ChatMessage msg) {
     final detail = msg.recipeDetail!;
-    final currentIdx = msg.currentStepIndex!;
-    final step = detail.steps[currentIdx];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         const Divider(),
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${detail.dish.title} • Bước ${currentIdx + 1}/${detail.steps.length}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            const Text('~10 phút', style: TextStyle(color: Colors.grey, fontSize: 11)),
+            Expanded(
+              child: Text(
+                'Món: ${detail.dish.title}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark),
+              ),
+            ),
+            Text(
+              '~${(detail.priceVnd / 1000).round()}k đ',
+              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryOrange, fontSize: 13),
+            ),
           ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: (currentIdx + 1) / detail.steps.length,
-          backgroundColor: Colors.grey[200],
-          valueColor: const AlwaysStoppedAnimation(AppTheme.primaryOrange),
         ),
         const SizedBox(height: 12),
-        Text(step, style: const TextStyle(fontSize: 14, height: 1.5)),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryOrange,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => viewModel.nextStep(index),
-                child: const Text('Bước tiếp theo'),
-              ),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryOrange,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(dish: detail.dish))),
-                child: const Text('Xem tất cả bước'),
-              ),
-            ),
-          ],
+            icon: const Icon(Icons.map, size: 18),
+            label: const Text('Tìm quán bán món này', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            onPressed: () => _findRestaurantForDish(detail.dish.title),
+          ),
         ),
       ],
     );
