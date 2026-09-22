@@ -94,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final profileVm = context.watch<ProfileViewModel>();
     final notificationVm = context.watch<NotificationViewModel>();
     final langVm = context.watch<LanguageViewModel>();
+    final filterVm = context.watch<FilterViewModel>();
     final dietType = profileVm.preferences.dietType;
 
     final recommendedDishes = viewModel.getRecommendedDishes(dietType);
@@ -143,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     Column(
                       children: [
                         Text(
-                          langVm.t('what_to_eat'),
+                          isFiltering ? 'DANH SÁCH GỢI Ý LỌC' : langVm.t('what_to_eat'),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -152,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                         Text(
-                          langVm.t('swipe_more'),
+                          isFiltering ? '${recommendedDishes.length} món phù hợp' : langVm.t('swipe_more'),
                           style: const TextStyle(fontSize: 12, color: AppTheme.textGrey),
                         ),
                       ],
@@ -193,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: context.watch<FilterViewModel>().activeFilters.map((f) {
+                    children: filterVm.activeFilters.map((f) {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Chip(
@@ -201,9 +202,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           backgroundColor: AppTheme.primaryOrange.withOpacity(0.1),
                           deleteIcon: const Icon(Icons.close, size: 14, color: AppTheme.primaryOrange),
                           onDeleted: () {
-                            final filterVm = context.read<FilterViewModel>();
                             filterVm.removeFilter(f['type']!);
-                            viewModel.applyFilter(filterVm, profileVm.preferences.dietType);
+                            viewModel.applyFilter(filterVm, dietType);
                           },
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide.none),
                         ),

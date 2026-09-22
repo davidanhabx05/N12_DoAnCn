@@ -11,7 +11,6 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   static List<Dish> _generate500Dishes() {
-    // Bộ sưu tập mã ID Pexels chất lượng cao cho ẩm thực Việt Nam / Châu Á
     final Map<String, List<String>> dishImages = {
       'Phở': ['2641886', '6260921', '2313642'],
       'Bánh mì': ['4109128', '4109130', '461198'],
@@ -43,6 +42,10 @@ class HomeViewModel extends ChangeNotifier {
       final finalId = matchedId ?? fallbackIds[index % fallbackIds.length];
       return 'https://images.pexels.com/photos/$finalId/pexels-photo-$finalId.jpeg?auto=compress&cs=tinysrgb&w=1000';
     }
+
+    final List<String> regions = ['Miền bắc', 'Miền trung', 'Miền nam'];
+    final List<String> weathers = ['Nắng', 'Mưa', 'Mát mẻ', 'Se lạnh', 'Lạnh'];
+    final List<String> moods = ['Vui vẻ', 'Buồn', 'Bực bội', 'Phấn khích', 'Chán nản'];
 
     final List<Dish> initialDishes = [
       Dish(
@@ -223,7 +226,7 @@ class HomeViewModel extends ChangeNotifier {
       // Slider time (Tối đa)
       matchesTime = matchesTime && (dish.prepTimeMinutes <= filterVm.maxTimeSlider);
 
-      // 3. Lọc theo Vùng miền, Thời tiết, Tâm trạng (Tìm trong title hoặc description)
+      // 3. Lọc chính xác theo Vùng miền, Thời tiết, Tâm trạng
       bool matchesRegion = true;
       if (filterVm.selectedRegion != null) {
         matchesRegion = dish.title.toLowerCase().contains(filterVm.selectedRegion!.toLowerCase()) ||
@@ -250,7 +253,6 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<Dish> getRecommendedDishes(String dietType) {
-    // Nếu danh sách lọc bị trống, tự động quay về danh sách mặc định theo chế độ ăn
     if (_filteredDishes.isEmpty) {
       if (dietType == 'Bình thường') return _allDishes;
       return _allDishes.where((d) => d.category == dietType || (dietType == 'Healthy' && d.category == 'Healthy')).toList();
@@ -263,7 +265,6 @@ class HomeViewModel extends ChangeNotifier {
 
   Dish get currentDish {
     if (_filteredDishes.isEmpty) {
-      // Fallback nếu lọc không ra món nào
       return _allDishes[0];
     }
     return _filteredDishes[_currentIndex % _filteredDishes.length];
@@ -271,14 +272,14 @@ class HomeViewModel extends ChangeNotifier {
 
   void nextDish() {
     if (_filteredDishes.isNotEmpty) {
-      _currentIndex++;
+      _currentIndex = (_currentIndex + 1) % _filteredDishes.length;
       notifyListeners();
     }
   }
 
   void previousDish() {
-    if (_currentIndex > 0) {
-      _currentIndex--;
+    if (_filteredDishes.isNotEmpty) {
+      _currentIndex = (_currentIndex - 1 + _filteredDishes.length) % _filteredDishes.length;
       notifyListeners();
     }
   }
