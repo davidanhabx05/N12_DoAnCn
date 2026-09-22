@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../models/recipe_detail.dart';
 import '../../models/dish.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/services/recipe_service.dart';
+import '../../viewmodels/restaurant_viewmodel.dart';
+import '../restaurant/restaurant_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final Dish? dish;
@@ -13,13 +15,15 @@ class RecipeDetailScreen extends StatefulWidget {
   State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
-class _RecipeDetailScreenState extends State<RecipeDetailScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  void _findRestaurant(BuildContext context, String dishTitle) {
+    final restaurantVm = context.read<RestaurantViewModel>();
+    restaurantVm.setSearchQuery(dishTitle);
+    restaurantVm.fetchNearbyFromPlaces();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RestaurantScreen()),
+    );
   }
 
   @override
@@ -44,24 +48,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> with SingleTick
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
-              actions: [
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                    child: const Icon(Icons.bookmark_border, color: AppTheme.textDark, size: 18),
-                  ),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                    child: const Icon(Icons.favorite_border, color: Colors.red, size: 18),
-                  ),
-                  onPressed: () {},
-                ),
-              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: CachedNetworkImage(
                   imageUrl: recipe.imageUrl,
@@ -78,136 +64,107 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> with SingleTick
             color: AppTheme.backgroundLight,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          child: Column(
-            children: [
-              // Recipe Info Card
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            recipe.title,
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Dish Info Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              recipe.title,
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                            ),
                           ),
-                        ),
-                        Text(
-                          '${recipe.priceVnd.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} đ',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryOrange),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      recipe.description,
-                      style: const TextStyle(color: AppTheme.textGrey, fontSize: 13, height: 1.4),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildMetaItem(Icons.favorite, '${recipe.likesCount}', Colors.red),
-                        _buildMetaItem(Icons.access_time, '${recipe.prepTimeMinutes} phút', Colors.blue),
-                        _buildMetaItem(Icons.restaurant_menu, recipe.difficulty, Colors.orange),
-                        _buildMetaItem(Icons.people_outline, '${recipe.servings} người', Colors.green),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Tabs
-              TabBar(
-                controller: _tabController,
-                labelColor: AppTheme.primaryOrange,
-                unselectedLabelColor: AppTheme.textGrey,
-                indicatorColor: AppTheme.primaryOrange,
-                tabs: const [
-                  Tab(text: 'Nguyên liệu'),
-                  Tab(text: 'Các bước'),
-                  Tab(text: 'Dinh dưỡng'),
-                  Tab(text: 'Thông tin'),
-                ],
-              ),
-
-              // Tab Views
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Nguyên liệu Tab
-                    ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: recipe.ingredients.length,
-                      itemBuilder: (context, index) {
-                        final ing = recipe.ingredients[index];
-                        return CheckboxListTile(
-                          title: Text(ing.name, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-                          subtitle: Text(ing.amount, style: const TextStyle(color: AppTheme.textGrey)),
-                          value: ing.isChecked,
-                          activeColor: AppTheme.primaryOrange,
-                          onChanged: (val) {
-                            setState(() {
-                              ing.isChecked = val ?? false;
-                            });
-                          },
-                        );
-                      },
-                    ),
-
-                    // Các bước Tab
-                    ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: recipe.steps.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 14,
-                                backgroundColor: AppTheme.primaryOrange,
-                                child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  recipe.steps[index],
-                                  style: const TextStyle(fontSize: 14, color: AppTheme.textDark, height: 1.4),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            '~${(recipe.priceVnd / 1000).round()}k đ',
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryOrange),
                           ),
-                        );
-                      },
-                    ),
-
-                    // Dinh dưỡng Tab
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(recipe.nutritionInfo, style: const TextStyle(fontSize: 15, color: AppTheme.textDark)),
-                    ),
-
-                    // Thông tin Tab
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(recipe.extraInfo, style: const TextStyle(fontSize: 15, color: AppTheme.textDark)),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        recipe.description,
+                        style: const TextStyle(color: AppTheme.textGrey, fontSize: 14, height: 1.5),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildMetaItem(Icons.local_fire_department, '${widget.dish!.calories} Calo', Colors.orange),
+                          _buildMetaItem(Icons.access_time, '${recipe.prepTimeMinutes} phút', Colors.blue),
+                          _buildMetaItem(Icons.category, widget.dish!.category, Colors.green),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                // Card gợi ý tìm quán
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.storefront, color: AppTheme.primaryOrange, size: 22),
+                          SizedBox(width: 8),
+                          Text(
+                            'Gợi ý điểm bán tại Hà Nội',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textDark),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Xem danh sách các quán ăn lân cận phục vụ món ăn này kèm khoảng cách và chỉ đường Google Maps.',
+                        style: TextStyle(color: AppTheme.textGrey, fontSize: 13, height: 1.4),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryOrange,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 2,
+                          ),
+                          icon: const Icon(Icons.map, size: 20),
+                          label: const Text(
+                            'TÌM QUÁN BÁN MÓN NÀY NGAY',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.5),
+                          ),
+                          onPressed: () => _findRestaurant(context, recipe.title),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -217,9 +174,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> with SingleTick
   Widget _buildMetaItem(IconData icon, String label, Color color) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 20),
+        Icon(icon, color: color, size: 22),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.textDark)),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
       ],
     );
   }

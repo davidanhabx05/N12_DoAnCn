@@ -78,6 +78,7 @@ class SearchViewModel extends ChangeNotifier {
         difficulty: i % 3 == 0 ? 'Khó' : (i % 2 == 0 ? 'Trung bình' : 'Dễ'),
         category: cat,
         likesCount: i % 150,
+        price: '${(i % 5 + 1) * 30}.000đ',
       ));
     }
     return generated;

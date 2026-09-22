@@ -1,16 +1,13 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../viewmodels/profile_viewmodel.dart';
 import '../../viewmodels/app_viewmodel.dart';
-import '../../viewmodels/feed_viewmodel.dart';
 import '../../viewmodels/language_viewmodel.dart';
 import '../../core/theme/app_theme.dart';
 import '../chatbot/chatbot_screen.dart';
 import '../restaurant/restaurant_screen.dart';
-import '../feed/create_post_screen.dart';
 import 'settings_screen.dart';
 import 'preference_settings_screen.dart';
 import 'random_dish_screen.dart';
@@ -107,42 +104,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Quick Prompt Card
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen()));
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: AppTheme.primaryOrange.withOpacity(0.1), shape: BoxShape.circle),
-                      child: const Icon(Icons.restaurant_menu, color: AppTheme.primaryOrange),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        langVm.currentLocale.languageCode == 'vi' ? 'Hôm nay bạn nấu món gì?' : 'What are you cooking today?',
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.camera_alt_outlined, color: AppTheme.primaryOrange),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen(openCamera: true)));
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
 
             // Section: TÁC VỤ
             Text(langVm.t('tasks'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
@@ -152,16 +114,10 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _buildMenuItem(Icons.auto_awesome, langVm.t('ai_assistant'), onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ChatbotScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatbotScreen()));
                   }),
                   _buildMenuItem(Icons.map_outlined, langVm.t('restaurant_suggest'), onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => RestaurantScreen()));
-                  }),
-                  _buildMenuItem(Icons.calendar_today, langVm.t('my_menu'), onTap: () {
-                    Provider.of<AppViewModel>(context, listen: false).setIndex(4);
-                  }),
-                  _buildMenuItem(Icons.bookmark_outline, langVm.t('saved_recipes'), onTap: () {
-                    Provider.of<AppViewModel>(context, listen: false).setIndex(2);
                   }),
                   _buildMenuItem(Icons.style_outlined, langVm.t('random_dish'), isLast: true, onTap: () {
                     Navigator.push(
@@ -226,13 +182,6 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Section: ẢNH CỦA BẠN
-            if (viewModel.isLoggedIn) ...[
-              Text(langVm.t('my_photos'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
-              const SizedBox(height: 8),
-              _buildPhotoGrid(context),
-            ],
-
             const SizedBox(height: 24),
 
             // Login / Logout Button
@@ -267,42 +216,6 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildPhotoGrid(BuildContext context) {
-    final feedVm = context.watch<FeedViewModel>();
-    final userPosts = feedVm.posts.where((p) => p.authorName == 'Bạn (Foodie)').toList();
-
-    if (userPosts.isEmpty) {
-      return Container(
-        height: 150,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-        child: const Text('Bạn chưa có bài đăng nào.', style: TextStyle(color: Colors.grey)),
-      );
-    }
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: userPosts.length,
-      itemBuilder: (context, index) {
-        final post = userPosts[index];
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: post.imageUrl.startsWith('http')
-              ? CachedNetworkImage(imageUrl: post.imageUrl, fit: BoxFit.cover)
-              : (kIsWeb 
-                  ? Image.network(post.imageUrl, fit: BoxFit.cover)
-                  : Image.file(File(post.imageUrl), fit: BoxFit.cover)),
-        );
-      },
     );
   }
 
