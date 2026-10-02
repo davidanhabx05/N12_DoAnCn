@@ -1,0 +1,36 @@
+# PostgreSQL cho "Hôm Nay Ăn Gì" chạy bằng Docker (không cần cài PostgreSQL).
+#
+#   Bật:            docker compose up -d
+#   Xem log:        docker compose logs -f db
+#   Tắt:            docker compose stop
+#   Xoá & tạo lại:  docker compose down -v   rồi   docker compose up -d
+#
+# Lần ĐẦU khởi động (volume còn trống), Docker tự chạy lần lượt
+# database/01_schema.sql và database/02_seed_data.sql -> có sẵn 60 món ăn thật.
+# (Quán ăn không nằm trong database: backend tìm quán thật quanh vị trí người dùng.)
+# Thông tin đăng nhập khớp với backend/.env.example (postgres / postgres).
+
+services:
+  db:
+    image: postgres:16
+    container_name: homnayangi-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: homnayangi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: Asia/Ho_Chi_Minh
+      PGTZ: Asia/Ho_Chi_Minh
+    ports:
+      - "5432:5432"
+    volumes:
+      - homnayangi-data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d homnayangi"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  homnayangi-data:

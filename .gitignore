@@ -1,27 +1,15 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
 .DS_Store
-.atom/
-.buildpath
-.history
-.project
-.settings
-
-# IntelliJ IDEA
-*.iml
 .idea/
-.dart_tool/
-.packages
+*.iml
 
-# Flutter/Dart/Pub
-/build/
-.pub/
-
-# Editor directories and files
-.vscode/
-.artifacts/
-*.g.dart
+# Bi mat: khong day len Git
 .env
+backend/oauth2.json
+*-firebase-adminsdk-*.json
+
+# File build
+build/
+.dart_tool/
+target/
+frontend/android/app/google-services.json
+!.env.example

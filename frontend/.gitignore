@@ -1,0 +1,27 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildpath
+.history
+.project
+.settings
+
+# IntelliJ IDEA
+*.iml
+.idea/
+.dart_tool/
+.packages
+
+# Flutter/Dart/Pub
+/build/
+.pub/
+
+# Editor directories and files
+.vscode/
+.artifacts/
+*.env
+*.g.dart

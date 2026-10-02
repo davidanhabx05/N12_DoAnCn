@@ -1,0 +1,38 @@
+name: n12_doan_cn
+description: "Hôm Nay Ăn Gì - app Flutter (frontend), gọi backend Spring Boot."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+  intl: ^0.19.0
+  flutter_dotenv: ^5.1.0
+  cached_network_image: ^3.3.1
+  firebase_core: ^2.27.0
+  firebase_auth: ^4.17.8
+  http: ^1.2.0
+  url_launcher: ^6.2.5
+  image_picker: ^1.0.7
+  geolocator: ^11.0.1
+  shared_preferences: ^2.2.3
+  google_sign_in: ^6.2.1
+  sensors_plus: ^4.0.2
+  speech_to_text: ^6.6.2
+  flutter_cache_manager: ^3.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - .env

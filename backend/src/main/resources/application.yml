@@ -1,0 +1,47 @@
+# Cấu hình backend. Các giá trị ${TEN:mac_dinh} được lấy từ biến môi trường
+# hoặc file backend/.env (xem .env.example).
+spring:
+  application:
+    name: homnayangi-backend
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:homnayangi}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 10
+  jackson:
+    default-property-inclusion: always
+    time-zone: Asia/Ho_Chi_Minh
+
+server:
+  port: ${SERVER_PORT:8080}
+  # Cho phép điện thoại / máy ảo trong mạng LAN gọi tới
+  address: 0.0.0.0
+  compression:
+    enabled: true
+    mime-types: application/json
+
+app:
+  gemini-api-key: ${GEMINI_API_KEY:}
+  places-api-key: ${GOOGLE_PLACES_API_KEY:}
+  # Chưa có key Google Places thì tìm quán thật bằng OpenStreetMap (miễn phí, không cần key).
+  # Đặt OSM_ENABLED=false nếu chỉ muốn dùng Google Places.
+  osm-enabled: ${OSM_ENABLED:true}
+  overpass-url: ${OVERPASS_URL:https://overpass-api.de/api/interpreter}
+  # Đường dẫn file service account JSON của Firebase (Project settings > Service accounts)
+  firebase-credentials: ${FIREBASE_CREDENTIALS:}
+  # true: khi CHƯA có service account vẫn chấp nhận token Google (chỉ đọc thông tin, KHÔNG kiểm chữ ký).
+  # Chỉ dùng khi phát triển, đặt false khi triển khai thật.
+  allow-unverified-google-token: ${ALLOW_UNVERIFIED_GOOGLE_TOKEN:true}
+  # Nạp lại danh sách món từ DB định kỳ (ms) để sửa dữ liệu bằng DBeaver là app thấy ngay
+  dish-cache-refresh-ms: 60000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    vn.homnayangi: INFO

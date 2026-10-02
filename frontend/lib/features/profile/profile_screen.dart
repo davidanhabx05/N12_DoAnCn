@@ -1,0 +1,325 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/network/api_client.dart';
+import '../../core/utils/image_utils.dart';
+import '../../viewmodels/profile_viewmodel.dart';
+import '../../viewmodels/language_viewmodel.dart';
+import '../../core/theme/app_theme.dart';
+import '../chatbot/chatbot_screen.dart';
+import '../restaurant/restaurant_screen.dart';
+import 'settings_screen.dart';
+import 'preference_settings_screen.dart';
+import 'random_dish_screen.dart';
+import 'allergy_settings_screen.dart';
+import 'health_stats_screen.dart';
+import 'edit_profile_screen.dart';
+import 'favorite_dishes_screen.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.watch<ProfileViewModel>();
+    final langVm = context.watch<LanguageViewModel>();
+
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+          children: [
+            // Top Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 24),
+                Text(
+                  langVm.t('profile'),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined, color: AppTheme.textDark),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Profile Header Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: AppTheme.primaryOrange.withOpacity(0.1), shape: BoxShape.circle),
+                          child: const Icon(Icons.edit, color: AppTheme.primaryOrange, size: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                  CircleAvatar(
+                    radius: 36,
+                    backgroundImage: ImageUtils.avatarProvider(viewModel.avatarUrl),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    viewModel.displayName,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                  ),
+                  Text(
+                    viewModel.bio,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppTheme.textGrey, fontSize: 13),
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(height: 1, color: AppTheme.backgroundLight),
+                  const SizedBox(height: 12),
+                  const _FavoriteStats(),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            const SizedBox(height: 10),
+
+            // Section: TÁC VỤ
+            Text(langVm.t('tasks'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              child: Column(
+                children: [
+                  _buildMenuItem(Icons.auto_awesome, langVm.t('ai_assistant'), onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatbotScreen()));
+                  }),
+                  _buildMenuItem(Icons.map_outlined, langVm.t('restaurant_suggest'), onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RestaurantScreen()));
+                  }),
+                  _buildMenuItem(Icons.style_outlined, langVm.t('random_dish'), isLast: true, onTap: () {
+                    Navigator.push(
+                      context, 
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (context, _, __) => const RandomDishScreen(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(opacity: animation, child: child);
+                        },
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Section: CÁ NHÂN HOÁ
+            Text(langVm.t('personalization'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              child: Column(
+                children: [
+                  _buildMenuItem(Icons.restaurant, langVm.t('diet_mode'), onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PreferenceSettingsScreen()));
+                  }),
+                  _buildMenuItem(Icons.local_dining, langVm.t('allergy'), onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const AllergySettingsScreen()));
+                  }),
+                  _buildMenuItem(Icons.favorite_outline, langVm.t('health_stats'), isLast: true, onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthStatsScreen()));
+                  }),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Section: TÀI KHOẢN
+            Text(langVm.t('account'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              child: Column(
+                children: [
+                  _buildMenuItem(Icons.info_outline, langVm.t('about_us'), isLast: true, onTap: () {
+                    showAboutDialog(
+                      context: context,
+                      applicationName: langVm.t('app_title'),
+                      applicationVersion: '1.0.0',
+                      applicationIcon: const Icon(Icons.restaurant_menu, color: AppTheme.primaryOrange, size: 40),
+                      children: [
+                        Text(langVm.currentLocale.languageCode == 'vi' 
+                          ? 'Ứng dụng gợi ý món ăn và quản lý thực đơn hàng đầu dành cho người Việt.'
+                          : 'Leading dish suggestion and meal plan management app for everyone.'),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            const SizedBox(height: 24),
+
+            // (Đã ẩn nút Đăng nhập theo yêu cầu không cần thiết đăng nhập)
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(IconData icon, String title, {bool isLast = false, VoidCallback? onTap}) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: AppTheme.backgroundLight, borderRadius: BorderRadius.circular(10)),
+            child: Icon(icon, color: AppTheme.primaryOrange, size: 20),
+          ),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark, fontSize: 14)),
+          trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+          onTap: onTap ?? () {},
+        ),
+        if (!isLast) const Divider(height: 1, indent: 56, endIndent: 16, color: AppTheme.backgroundLight),
+      ],
+    );
+  }
+}
+
+/// Hai thuộc tính dưới phần thông tin: số bài viết đã thích và đã lưu.
+/// Số liệu thật lấy từ backend (GET /api/me/likes, GET /api/me/bookmarks).
+class _FavoriteStats extends StatefulWidget {
+  const _FavoriteStats();
+
+  @override
+  State<_FavoriteStats> createState() => _FavoriteStatsState();
+}
+
+class _FavoriteStatsState extends State<_FavoriteStats> {
+  final ApiClient _api = ApiClient.instance;
+  int? _likedCount;
+  int? _savedCount;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (!_api.hasSession) {
+      setState(() {
+        _likedCount = 0;
+        _savedCount = 0;
+      });
+      return;
+    }
+    final liked = await _count('/api/me/likes');
+    final saved = await _count('/api/me/bookmarks');
+    if (!mounted) return;
+    setState(() {
+      _likedCount = liked ?? _likedCount;
+      _savedCount = saved ?? _savedCount;
+    });
+  }
+
+  Future<int?> _count(String path) async {
+    try {
+      final data = await _api.get(path);
+      return data is List ? data.length : 0;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _open(FavoriteKind kind) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => FavoriteDishesScreen(kind: kind)));
+    if (mounted) _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isVi = context.watch<LanguageViewModel>().currentLocale.languageCode == 'vi';
+    return Row(
+      children: [
+        Expanded(
+          child: _StatColumn(
+            icon: Icons.favorite,
+            iconColor: Colors.redAccent,
+            title: isVi ? 'Bài viết đã thích' : 'Liked posts',
+            count: _likedCount?.toString() ?? '-',
+            onTap: () => _open(FavoriteKind.liked),
+          ),
+        ),
+        Container(width: 1, height: 40, color: AppTheme.backgroundLight),
+        Expanded(
+          child: _StatColumn(
+            icon: Icons.bookmark,
+            iconColor: AppTheme.primaryOrange,
+            title: isVi ? 'Bài viết đã lưu' : 'Saved posts',
+            count: _savedCount?.toString() ?? '-',
+            onTap: () => _open(FavoriteKind.saved),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatColumn extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String count;
+  final VoidCallback onTap;
+
+  const _StatColumn({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.count,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: iconColor, size: 18),
+                const SizedBox(width: 6),
+                Text(count, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(title, style: const TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+}
